@@ -1,0 +1,13 @@
+{
+  "name": "lair-security",
+  "version": "1.0.0",
+  "main": "hello-rek.js",
+  "author": "cp@cjparker.us",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "aws-sdk": "^2.171.0",
+    "babel-eslint": "^8.1.0",
+    "eslint": "^4.14.0"
+  }
+}

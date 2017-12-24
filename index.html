@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <title>lair security</title>
+
+    <style>
+      html {
+        font-family: sans-serif;
+      }
+    </style>
+
+    <body>
+      <script src="/socket.io/socket.io.js"></script>
+
+      <img id="mainImage" src="/sample01.jpeg" width="400"/>
+
+      <script>
+        let mainImage
+        let socket
+
+        function init() {
+           mainImage = document.querySelector("#mainImage")
+           socket = io.connect()
+
+           socket.on('newImageCaptured', () => {
+             // when we get an event from the server, reload the image
+             mainImage.src = `/sample01.jpeg#${(new Date()).getTime()}`
+           })
+
+        }
+
+        window.onload = () => {
+          console.log('onload')
+          init()
+        }
+
+      </script>
+    </body>
+
+</html>
