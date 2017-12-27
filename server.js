@@ -86,7 +86,7 @@ let getCookieID = (cookieHeader) => {
 }
 
 const cameraOpts = {
-    mode: 'timelapse',
+    mode: 'photo',
     output: 'camera-snapshot.png',
     encoding: 'png',
     timelapse: 1000,
@@ -98,16 +98,6 @@ let camera = new RaspiCam(cameraOpts)
 /*
 */
 
-// start taking stills from raspi camera
-camera.on('read', (err, timestamp, filename) => {
-    if (err) {
-        console.log('error reading camera', err)
-    } else {
-        console.log('captured image, doing local face recognition')
-
-    }
-
-})
 
 io.on('connection', localClient => {
     // FIXME: note that we're storing the last connected client globally
@@ -126,9 +116,6 @@ io.on('connection', localClient => {
         console.log('players now', players)
     })
 
-    setInterval(() => {
-        client.emit('newImageCaptured', {})
-    }, 5000)
 })
 
 io.on('disconnect', client => {
@@ -139,6 +126,7 @@ server.listen(port, '0.0.0.0', () => {
     console.log(`listening on ${port}`)
 })
 
+/*
 gpio.on('change', function(channel, value) {
     console.log(`motion state changed, value ${value}`)
     if (value && state === 'ARMED') {
@@ -148,13 +136,20 @@ gpio.on('change', function(channel, value) {
         console.log(`we have motion, but state is ${state}`)
     }
 })
+*/
+
+authenticate()
 
 function authenticate() {
-    client.emit(state, {}) // tell the client we're authenticating local
+    if (client) {
+	    client.emit(state, {}) // tell the client we're authenticating local
+    }
     captureCameraImage()
         .then(capturedImageFilename => {
             // tell the client to display the new image
-            client.emit('newImageCaptured', {})
+            if (client) {
+		    client.emit('newImageCaptured', {})
+            }
 
             // local face recognition
             return findLocalFace(capturedImageFilename)
@@ -162,7 +157,9 @@ function authenticate() {
         .then(localFace => {
             console.log('found face', localFace)
             state = 'AUTHENTICATING-REMOTE'
-            client.emit(state, {})
+            if (client) {
+		    client.emit(state, {})
+            }
 
             return detectFaceAWSPromise(filename)
         })
@@ -176,8 +173,9 @@ function authenticate() {
 
 function captureCameraImage() {
     return new Promise((resolve, reject) => {
+        console.log('starting capture')
         camera.start()
-        camera.on('start', () => {
+            console.log('capture has started')
             camera.on('read', (err, timestamp, filename) => {
                 if (err) {
                     console.log('error capturing camera image', err)
@@ -192,50 +190,48 @@ function captureCameraImage() {
                     })
                 }
             })
-        })
     })
 }
 
-function findLocalFace(filename, attempts = 5) {
+function findLocalFace(filename) {
     return new Promise((resolve, reject) => {
-        let attempt = 0
-        foundFace = false
-        while (attempt++ < attempts && !faceFound) {
             localFacePromise(filename)
                 .then(face => {
-                    faceFound = true
                     resolve(face)
                 })
                 .catch(err => {
-                    if (attempt >= attempts) {
                         reject('could not detect face')
-                    }
                 })
-        }
     })
 }
 
-function localFacePromise(filename) {
+function localFacePromise(savedImage) {
+    console.log('looking for face in', savedImage.filename)
     const face_cascade = new cv.CascadeClassifier(path.join(__dirname, './node_modules', 'opencv', 'data', 'haarcascade_frontalface_alt2.xml'))
 
     let p = new Promise((resolve, reject) => {
-        cv.readImage(filename, (err, image) => {
-            face_cascade.detectMultiScale(image, (err, faces) => {
-                if (err) {
-                    console.log('error ', err)
-                    reject(err)
-                } else if (faces.length <= 0) {
-                    console.log('NO FACES')
-                    reject('NO FACE')
-                } else {
-                    const face = faces[0] // only handle first face
-                    const boxImageName = `${filename}-box.png`
-                    console.log('biggest face', JSON.stringify(faces[0], null, 2))
-                    image.rectangle([face.x, face.y], [face.width, face.height], [0, 255, 0], 2)
-                    image.save(boxImageName)
-                    resolve({face: face, boxImageName: boxImageName})
-                }
-            })
+        cv.readImage(savedImage.filename, (imageReadErr, image) => {
+            if (imageReadErr) {
+               console.log('image read error', imageReadErr)
+               reject(imageReadErr)
+            } else {
+		    face_cascade.detectMultiScale(image, (err, faces) => {
+			if (err) {
+			    console.log('error ', err)
+			    reject(err)
+			} else if (faces.length <= 0) {
+			    console.log('NO FACES')
+			    reject('NO FACE')
+			} else {
+			    const face = faces[0] // only handle first face
+			    const boxImageName = `${savedImage.filename}-box.png`
+			    console.log('biggest face', JSON.stringify(faces[0], null, 2))
+			    image.rectangle([face.x, face.y], [face.width, face.height], [0, 255, 0], 2)
+			    image.save(boxImageName)
+			    resolve({face: face, boxImageName: boxImageName})
+			}
+		    })
+            }
         })
     })
     return p
