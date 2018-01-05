@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+  <title>lair security</title>
+
+  <style>
+    html {
+      font-family: sans-serif;
+      padding: 0;
+      margin: 0;
+      background: white;
+    }
+
+    body {
+      padding: 0;
+      margin: 0;
+    }
+
+    #mainImage {
+      position: absolute;
+      top:0;
+      left:0;
+    }
+
+    #mainCanvas {
+      position: absolute;
+      width:1024px;
+      height:768px;
+      z-index: 20;
+      border:1px solid red;
+    }
+
+    .image-container {
+      position: relative;
+      width:1024px;
+      height:768px;
+      margin-left: auto;
+      margin-right: auto;
+      text-align: center;
+    }
+
+    .center-column {
+      text-align: center;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .text {
+      z-index: 10;
+      color: red;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width:100%;
+      font-size: 4.0em;
+    }
+
+  </style>
+
+  <body>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/mockFaceData.js"></script>
+    <script type="text/javascript" src="raspi-stream/http-live-player.js">;</script>
+
+    <div class="center-column">
+      <div class="image-container">
+        <!--img id="mainImage" src="/camera-snapshot.png" /-->
+        <div class="text">PLEASE AUTHENTICATE</div>
+        <canvas id="mainCanvas"></canvas>
+      </div>
+    </div>
+
+    <input id="snap" type="button" value="snap"></input>
+
+    <script>
+      let mainImage
+      let snap
+      let socket
+      let mainCanvas
+
+      function init() {
+        mainImage = document.querySelector("#mainImage")
+        mainCanvas = document.querySelector("#mainCanvas")
+        snap = document.querySelector("#snap")
+        socket = io.connect()
+
+        mainCanvas.style.left = `${mainImage.offsetLeft}px`
+        mainCanvas.style.top = `${mainImage.offsetTop}px`
+        mainCanvas.style.width = `${mainImage.width}px`
+        mainCanvas.style.height = `${mainImage.height}px`
+        // mainCanvas.width = `${mainImage.width}px`
+        // mainCanvas.height = `${mainImage.height}px`
+        mainCanvas.width = `1024`
+        mainCanvas.height = `768`
+
+        let drawCtx = mainCanvas.getContext("2d")
+
+        snap.addEventListener('click', () => {
+          console.log('snappy')
+          socket.emit('snap', {})
+        })
+
+        socket.on('newImageCaptured', () => {
+          // when we get an event from the server, reload the image
+          mainImage.src = `/camera-snapshot.png#${(new Date()).getTime()}`
+        })
+
+        setTimeout(() => {
+          testFaceData.FaceDetails[0].Landmarks.forEach(point => { // first face
+            let xCoord = Math.floor(point.X * mainImage.width)
+            let yCoord = Math.floor(point.Y * mainImage.height)
+            console.log(`NEW xCoord ${xCoord} yCoord ${yCoord}`)
+            drawCtx.beginPath();
+            drawCtx.arc(xCoord, yCoord, 2, 0, 2 * Math.PI, false);
+            drawCtx.lineWidth = 2;
+            drawCtx.strokeStyle = '#00ff00';
+            drawCtx.stroke();
+          })
+
+        }, 1000)
+
+        socket.on('drawFace', faceData => {
+          drawCtx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
+          console.log('faceData', faceData)
+          faceData.FaceDetails[0].Landmarks.forEach(point => { // first face
+            let xCoord = point.X * mainImage.width
+            let yCoord = point.Y * mainImage.height
+            console.log(`xCoord ${xCoord} yCoord ${yCoord}`)
+            drawCtx.beginPath();
+            drawCtx.arc(xCoord, yCoord, 2, 0, 2 * Math.PI, false);
+            drawCtx.lineWidth = 2;
+            drawCtx.strokeStyle = '#00ff00';
+            drawCtx.stroke();
+          })
+        })
+
+        socket.on('alarm', () => {
+          console.log('ALARM!!!!')
+        })
+
+      }
+
+      window.onload = () => {
+        console.log('onload')
+        init()
+      }
+    </script>
+  </body>
+
+</html>

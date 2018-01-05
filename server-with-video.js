@@ -21,6 +21,8 @@ const cookieName = 'lairSecurityID'
 const defaultHeight = 800
 const defaultWidth = 900
 
+const WebStreamerServer = require('./raspi-stream/raspivid')
+
 // command to put the display to sleep
 const sleepMonitorCommand = process.env.SLEEP_MON || 'vcgencmd display_power 0'
 
@@ -71,11 +73,26 @@ app.get('/', function(req, res, next) {
 
     res.sendFile(__dirname + '/index.html')
 })
+
+
 app.use(express.static('.'))
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({
     extended: true
 }))
+app.use(bodyParser.raw({
+   type: 'text/plain',
+   limit: '200mb'
+}))
+
+app.post('/savepic', (req, res, next) => {
+  const postText = req.body.toString('utf-8')
+  const base64Text = postText.split('base64,')[1]
+  const base64Data = Buffer.from(base64Text, 'base64')
+  console.log('WE GOT A POST', base64Text)
+  fs.writeFileSync('canvas-snap.png', base64Data)
+})
+
 
 let getCookieID = (cookieHeader) => {
     return (() => {
@@ -141,6 +158,8 @@ io.on('connection', localClient => {
 io.on('disconnect', client => {
     console.log('disconnect client.conn.id', client.conn.id)
 })
+
+const silence = new WebStreamerServer(server)
 
 server.listen(port, '0.0.0.0', () => {
     console.log(`listening on ${port}`)
@@ -347,11 +366,14 @@ async function go() {
     }
 }
 
-go()
+//go()
 
+/*
 setInterval(() => {
   if ((new Date()).getTime() - lastMotionTimestamp > alarmResetTimeSec * 1000) {
     console.log('monitor sleep')
     exec(sleepMonitorCommand)
   }
 }, 5000)
+
+*/
