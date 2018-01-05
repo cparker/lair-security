@@ -16,10 +16,8 @@ class RpiServer extends Server {
   }
 
   get_feed() {
-    var msk = "raspivid -t 0 -o - -w %d -h %d -fps %d";
-    var cmd = util.format(msk, this.options.width, this.options.height, this.options.fps);
-    console.log(cmd);
-    var streamer = spawn('raspivid', ['-t', '0', '-o', '-', '-w', this.options.width, '-h', this.options.height, '-fps', this.options.fps, '-pf', 'baseline']);
+    console.log(`raspivid -n -t 0 -o - -w ${this.options.width} -h ${this.options.height} -fps ${this.options.fps} -pf baseline`);
+    var streamer = spawn('raspivid', ['-n', '-t', '0', '-o', '-', '-w', this.options.width, '-h', this.options.height, '-fps', this.options.fps, '-pf', 'baseline']);
     streamer.on("exit", function(code){
       console.log("Failure", code);
     });
