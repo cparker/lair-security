@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>sweep</title>
+
+    <style>
+      html {
+        height:100%;
+        width:100%;
+      }
+
+      body {
+        background:#0000f0;
+      }
+
+      .block {
+        height:500px;
+        width:500px;
+        background:gray;
+        overflow:hidden;
+      }
+
+      .sweeper {
+        height: 100%;
+        width: 7px;
+        background: #3bff3b;
+        position: relative;
+        transition: 1s;
+      }
+
+      .sweep-left {
+        left:-5%;
+      }
+
+      .sweep-right {
+        left:100%;
+      }
+     
+    </style>
+
+  </head>
+
+
+  <body>
+    body
+
+    <div class="block">
+      <div class="sweeper"></div>
+    </div>
+
+    <script>
+      let count = 0
+      let sweeper = document.querySelector('.sweeper')
+      setInterval(() => {
+        if (count++ % 2 == 0) {
+          sweeper.classList.remove('sweep-left')
+          sweeper.classList.add('sweep-right')
+        } else {
+          sweeper.classList.add('sweep-left')
+          sweeper.classList.remove('sweep-right')
+        }
+      }, 1500)
+
+    </script>
+
+  </body>
+
+</html>
