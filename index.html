@@ -11,48 +11,48 @@
       padding: 0;
       margin: 0;
       background: white;
-      height:100%;
-      width:100%;
+      height: 100%;
+      width: 100%;
     }
 
     body {
       padding: 0;
       margin: 0;
-      height:100%;
-      width:100%;
+      height: 100%;
+      width: 100%;
       background: gray;
     }
 
     #mainImage {
       position: absolute;
-      top:0;
-      left:0;
+      top: 0;
+      left: 0;
     }
 
     #mainCanvas {
-      left:0;
-      top:0;
-      border:1px solid red;
+      left: 0;
+      top: 0;
+      border: 1px solid red;
     }
 
     .buttons {
-       z-index: 5;
+      z-index: 5;
     }
 
     #secondCanvas {
-       z-index:1;
-       position:absolute;
-       left:0;
-       top:0;
-       height:100%;
-       width:100%;
-       border:5px solid black;
+      z-index: 1;
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 100%;
+      border: 5px solid black;
     }
 
     .image-container {
       position: relative;
-      width:1024px;
-      height:768px;
+      width: 1024px;
+      height: 768px;
       margin-left: auto;
       margin-right: auto;
       text-align: center;
@@ -70,16 +70,17 @@
       position: absolute;
       top: 0;
       left: 0;
-      width:100%;
+      width: 100%;
       font-size: 4.0em;
     }
-
   </style>
 
   <body>
-    <script src="/socket.io/socket.io.js"></script>
+    <script src="/mystuff/socket.io.js"></script>
     <script src="/mockFaceData.js"></script>
-    <script type="text/javascript" src="raspi-stream/http-live-player.js">;</script>
+    <script type="text/javascript" src="raspi-stream/http-live-player.js">
+      ;
+    </script>
 
     <div class="center-column">
       <div class="image-container">
@@ -90,12 +91,12 @@
     </div>
 
     <input class="buttons" id="snap" type="button" value="snap"></input>
-    <input class="buttons"  id="start" type="button" value="start"></input>
+    <input class="buttons" id="start" type="button" value="start"></input>
 
     <script>
       let mainImage
       let snap, start
-      let socket
+      let mySocket
       let mainCanvas, secondCanvas
 
       function init() {
@@ -103,7 +104,7 @@
         mainCanvas = document.querySelector("#mainCanvas")
         snap = document.querySelector("#snap")
         start = document.querySelector("#start")
-        //socket = io.connect()
+        mySocket = io('/mystuff')
 
         //let drawCtx = mainCanvas.getContext("2d")
 
@@ -111,7 +112,7 @@
           console.log('snappy, take picture of canvas')
           let picURL = mainCanvas.toDataURL()
           fetch('/savepic', {
-            method:'POST',
+            method: 'POST',
             body: picURL
           })
         })
@@ -121,10 +122,11 @@
           wsavc.playStream()
         })
 
-	// Create h264 player
-	let uri = "ws://" + document.location.host
-	let wsavc = new WSAvcPlayer(mainCanvas, "webgl", 1, 35)
-	wsavc.connect(uri)
+        // Create h264 player
+        let uri = "ws://" + document.location.host
+        let wsavc = new WSAvcPlayer(mainCanvas, "webgl", 1, 35)
+        wsavc.connect(uri)
+
       }
 
       window.onload = () => {

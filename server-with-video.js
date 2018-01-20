@@ -5,7 +5,8 @@ const app = express()
 const bodyParser = require('body-parser')
 const cookieParser = require('cookie-parser')
 const server = require('http').createServer(app)
-const io = require('socket.io')(server)
+const io = require('socket.io')(server, {path:'/mystuff'})
+//const io = require('socket.io')(server)
 const RaspiCam = require('raspicam')
 const { exec } = require('child_process')
 const path = require('path')
@@ -89,7 +90,6 @@ app.post('/savepic', (req, res, next) => {
   const postText = req.body.toString('utf-8')
   const base64Text = postText.split('base64,')[1]
   const base64Data = Buffer.from(base64Text, 'base64')
-  console.log('WE GOT A POST', base64Text)
   fs.writeFileSync('canvas-snap.png', base64Data)
 })
 

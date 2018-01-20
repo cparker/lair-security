@@ -25,7 +25,7 @@ class _Server {
 
     this.wss.on('connection', this.new_client);
   }
-  
+
 
   start_feed() {
     var readStream = this.get_feed();
@@ -55,7 +55,7 @@ class _Server {
   }
 
   new_client(socket) {
-  
+
     var self = this;
     console.log('New guy');
 
@@ -67,6 +67,7 @@ class _Server {
 
     socket.on("message", function(data){
       var cmd = "" + data, action = data.split(' ')[0];
+      console.log('cmd is', cmd)
       console.log("Incomming action '%s'", action);
 
       if(action == "REQUESTSTREAM")
@@ -77,7 +78,7 @@ class _Server {
 
     socket.on('close', function() {
       if (self && self.readStream) {
-	      try { self.readStream.end() } catch (err) { 
+	      try { self.readStream.end() } catch (err) {
                 console.log('caught error calling readStream.end()', err)
               }
       }
