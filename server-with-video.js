@@ -1,6 +1,7 @@
 'use strict'
 
 const express = require('express')
+const morgan = require('morgan')
 const app = express()
 const bodyParser = require('body-parser')
 const cookieParser = require('cookie-parser')
@@ -52,6 +53,7 @@ let gameBoard = {
 // ARMED, AUTHENTICATING-LOCAL, AUTHENTICATING-REMOTE, AUTHENTICATED,
 let state = 'ARMED'
 
+app.use(morgan('combined'))
 app.use(cookieParser())
 
 app.use((req, res, next) => {

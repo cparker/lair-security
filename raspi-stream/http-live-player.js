@@ -148,7 +148,7 @@ function load() {
   if ('env' in (typeof process === 'undefined' ? {} : process)) {
     r = process.env.DEBUG;
   }
-  
+
   return r;
 }
 
@@ -545,9 +545,9 @@ function plural(ms, n, name) {
         root.Decoder = factory();
     }
 }(this, function () {
-  
+
   var global;
-  
+
   function initglobal(){
     global = this;
     if (!global){
@@ -559,48 +559,48 @@ function plural(ms, n, name) {
     };
   };
   initglobal();
-  
-  
+
+
   function error(message) {
     console.error(message);
     console.trace();
   };
 
-  
+
   function assert(condition, message) {
     if (!condition) {
       error(message);
     };
   };
-  
-  
+
+
   return (function(){
     "use strict";
 
 
 
-  
+
   var getModule = function(_broadwayOnHeadersDecoded, _broadwayOnPictureDecoded){
-    
+
     var window = this;
     //console.log(typeof window);
-    
+
     window._broadwayOnHeadersDecoded = _broadwayOnHeadersDecoded;
     window._broadwayOnPictureDecoded = _broadwayOnPictureDecoded;
-    
+
     var Module = {
       'print': function(text) { console.log('stdout: ' + text); },
       'printErr': function(text) { console.log('stderr: ' + text); }
     };
-    
-    
+
+
     /*
-    
+
       The reason why this is all packed into one file is that this file can also function as worker.
       you can integrate the file into your build system and provide the original file to be loaded into a worker.
-    
+
     */
-    
+
 function d(a){throw a;}var g=void 0,i=!0,k=null,m=!1;function n(){return function(){}}var p;p||(p=eval("(function() { try { return Module || {} } catch(e) { return {} } })()"));var aa={},r;for(r in p)p.hasOwnProperty(r)&&(aa[r]=p[r]);var t="object"===typeof process&&"function"===typeof null,ba="object"===typeof window,ca="function"===typeof importScripts,da=!ba&&!t&&!ca;
 if(t){p.print||(p.print=function(a){process.stdout.write(a+"\n")});p.printErr||(p.printErr=function(a){process.stderr.write(a+"\n")});var fa=(null)("fs"),ga=(null)("path");p.read=function(a,b){var a=ga.normalize(a),c=fa.readFileSync(a);!c&&a!=ga.resolve(a)&&(a=path.join(__dirname,"..","src",a),c=fa.readFileSync(a));c&&!b&&(c=c.toString());return c};p.readBinary=function(a){return p.read(a,i)};p.load=function(a){ha(read(a))};p.thisProgram=1<process.argv.length?process.argv[1].replace(/\\/g,"/"):
 "unknown-program";p.arguments=process.argv.slice(2);"undefined"!==typeof module&&(module.exports=p);process.on("uncaughtException",function(a){a instanceof ia||d(a)})}else da?(p.print||(p.print=print),"undefined"!=typeof printErr&&(p.printErr=printErr),p.read="undefined"!=typeof read?read:function(){d("no read() available (jsc?)")},p.readBinary=function(a){if("function"===typeof readbuffer)return new Uint8Array(readbuffer(a));a=read(a,"binary");w("object"===typeof a);return a},"undefined"!=typeof scriptArgs?
@@ -791,15 +791,15 @@ Na(Oa);!(0<S)&&!p.calledRun&&(p.setStatus?(p.setStatus("Running..."),setTimeout(
 function A(a){a&&(p.print(a),p.fa(a));H=i;d("abort() at "+Fa()+"\nIf this abort() is unexpected, build with -s ASSERTIONS=1 which can give more information.")}p.abort=p.abort=A;if(p.preInit)for("function"==typeof p.preInit&&(p.preInit=[p.preInit]);0<p.preInit.length;)p.preInit.pop()();var lc=m;p.noInitialRun&&(lc=m);mc();
 
     var resultModule = window.Module || global.Module || Module;
-    
+
     return resultModule;
   };
-  
-  
+
+
   var nowValue = function(){
     return (new Date()).getTime();
   };
-  
+
   if (typeof performance != "undefined"){
     if (performance.now){
       nowValue = function(){
@@ -807,18 +807,18 @@ function A(a){a&&(p.print(a),p.fa(a));H=i;d("abort() at "+Fa()+"\nIf this abort(
       };
     };
   };
-  
-  
+
+
   var Broadway = function(parOptions){
     this.options = parOptions || {};
-    
+
     this.now = nowValue;
-    
+
     var asmInstance;
-    
+
     var fakeWindow = {
     };
-    
+
     var Module = getModule.apply(fakeWindow, [function () {
 
     }, function ($buffer, width, height) {
@@ -826,7 +826,7 @@ function A(a){a&&(p.print(a),p.fa(a));H=i;d("abort() at "+Fa()+"\nIf this abort(
       if (!buffer) {
         buffer = this.pictureBuffers[$buffer] = toU8Array($buffer, (width * height * 3) / 2);
       };
-      
+
       var infos;
       var doInfo = false;
       if (this.infoAr.length){
@@ -834,7 +834,7 @@ function A(a){a&&(p.print(a),p.fa(a));H=i;d("abort() at "+Fa()+"\nIf this abort(
         infos = this.infoAr;
       };
       this.infoAr = [];
-      
+
       if (this.options.rgb){
         if (!asmInstance){
           asmInstance = getAsm(width, height);
@@ -844,16 +844,16 @@ function A(a){a&&(p.print(a),p.fa(a));H=i;d("abort() at "+Fa()+"\nIf this abort(
 
         var copyU8 = new Uint8Array(asmInstance.outSize);
         copyU8.set( asmInstance.out );
-        
+
         if (doInfo){
           infos[0].finishDecoding = nowValue();
         };
-        
+
         this.onPictureDecoded(copyU8, width, height, infos);
         return;
-        
+
       };
-      
+
       if (doInfo){
         infos[0].finishDecoding = nowValue();
       };
@@ -866,14 +866,14 @@ function A(a){a&&(p.print(a),p.fa(a));H=i;d("abort() at "+Fa()+"\nIf this abort(
     var HEAP32 = Module.HEAP32;
     var _h264bsdClip = Module._get_h264bsdClip();
 
-    
+
     var MAX_STREAM_BUFFER_LENGTH = 1024 * 1024;
-  
+
     // from old constructor
     Module._broadwayInit();
-    
+
     /**
-   * Creates a typed array from a HEAP8 pointer. 
+   * Creates a typed array from a HEAP8 pointer.
    */
     function toU8Array(ptr, length) {
       return HEAPU8.subarray(ptr, ptr + length);
@@ -882,11 +882,11 @@ function A(a){a&&(p.print(a),p.fa(a));H=i;d("abort() at "+Fa()+"\nIf this abort(
     this.pictureBuffers = {};
     // collect extra infos that are provided with the nal units
     this.infoAr = [];
-    
+
     this.onPictureDecoded = function (buffer, width, height, infos) {
-      
+
     };
-    
+
     /**
      * Decodes a stream buffer. This may be one single (unframed) NAL unit without the
      * start code, or a sequence of NAL units with framing start code prefixes. This
@@ -899,15 +899,15 @@ function A(a){a&&(p.print(a),p.fa(a));H=i;d("abort() at "+Fa()+"\nIf this abort(
         this.infoAr.push(parInfo);
         parInfo.startDecoding = nowValue();
       };
-      
+
       this.streamBuffer.set(buffer);
       Module._broadwaySetStreamLength(buffer.length);
       Module._broadwayPlayStream();
     };
 
 
-    
-    function patchOptimizations(config, patches) { 
+
+    function patchOptimizations(config, patches) {
       var scope = getGlobalScope();
       for (var name in patches) {
         var patch = patches[name];
@@ -924,7 +924,7 @@ function A(a){a&&(p.print(a),p.fa(a));H=i;d("abort() at "+Fa()+"\nIf this abort(
         }
       }
     };
-    
+
     var patches = {
       "filter": {
         name: "_h264bsdFilterPicture",
@@ -969,7 +969,7 @@ function A(a){a&&(p.print(a),p.fa(a));H=i;d("abort() at "+Fa()+"\nIf this abort(
     function getGlobalScope() {
       return function () { return this; }.call(null);
     };
-    
+
     /* Optimizations */
 
     function clip(x, y, z) {
@@ -1124,29 +1124,29 @@ function A(a){a&&(p.print(a),p.fa(a));H=i;d("abort() at "+Fa()+"\nIf this abort(
     }
   };
 
-  
+
   Broadway.prototype = {
     configure: function (config) {
       // patchOptimizations(config, patches);
       console.info("Broadway Configured: " + JSON.stringify(config));
     }
-    
+
   };
-  
-  
-  
-  
+
+
+
+
   /*
-  
+
     asm.js implementation of a yuv to rgb convertor
     provided by @soliton4
-    
-    based on 
+
+    based on
     http://www.wordsaretoys.com/2013/10/18/making-yuv-conversion-a-little-faster/
-  
+
   */
-  
-  
+
+
   // factory to create asm.js yuv -> rgb convertor for a given resolution
   var asmInstances = {};
   var getAsm = function(parWidth, parHeight){
@@ -1396,18 +1396,18 @@ function A(a){a&&(p.print(a),p.fa(a));H=i;d("abort() at "+Fa()+"\nIf this abort(
     };
   };
 
-  
+
   /*
     potential worker initialization
-  
+
   */
-  
-  
+
+
   if (typeof self != "undefined"){
     var isWorker = false;
     var decoder;
     var reuseMemory = false;
-    
+
     var memAr = [];
     var getMem = function(length){
       if (memAr.length){
@@ -1420,10 +1420,10 @@ function A(a){a&&(p.print(a),p.fa(a));H=i;d("abort() at "+Fa()+"\nIf this abort(
         };
       };
       return new ArrayBuffer(length);
-    }; 
-    
+    };
+
     self.addEventListener('message', function(e) {
-      
+
       if (isWorker){
         if (reuseMemory){
           if (e.data.reuse){
@@ -1433,16 +1433,16 @@ function A(a){a&&(p.print(a),p.fa(a));H=i;d("abort() at "+Fa()+"\nIf this abort(
         if (e.data.buf){
           decoder.decode(new Uint8Array(e.data.buf, e.data.offset || 0, e.data.length), e.data.info);
         };
-        
+
       }else{
         if (e.data && e.data.type === "Broadway.js - Worker init"){
           isWorker = true;
           decoder = new Broadway(e.data.options);
-          
+
           if (e.data.options.reuseMemory){
             reuseMemory = true;
             decoder.onPictureDecoded = function (buffer, width, height, infos) {
-              
+
               //var buf = getMem();
 
               // buffer needs to be copied because we give up ownership
@@ -1450,15 +1450,15 @@ function A(a){a&&(p.print(a),p.fa(a));H=i;d("abort() at "+Fa()+"\nIf this abort(
               copyU8.set( buffer, 0, buffer.length );
 
               postMessage({
-                buf: copyU8.buffer, 
+                buf: copyU8.buffer,
                 length: buffer.length,
-                width: width, 
-                height: height, 
+                width: width,
+                height: height,
                 infos: infos
               }, [copyU8.buffer]); // 2nd parameter is used to indicate transfer of ownership
 
             };
-            
+
           }else{
             decoder.onPictureDecoded = function (buffer, width, height, infos) {
               if (buffer) {
@@ -1470,10 +1470,10 @@ function A(a){a&&(p.print(a),p.fa(a));H=i;d("abort() at "+Fa()+"\nIf this abort(
               copyU8.set( buffer, 0, buffer.length );
 
               postMessage({
-                buf: copyU8.buffer, 
+                buf: copyU8.buffer,
                 length: buffer.length,
-                width: width, 
-                height: height, 
+                width: width,
+                height: height,
                 infos: infos
               }, [copyU8.buffer]); // 2nd parameter is used to indicate transfer of ownership
 
@@ -1486,14 +1486,14 @@ function A(a){a&&(p.print(a),p.fa(a));H=i;d("abort() at "+Fa()+"\nIf this abort(
 
     }, false);
   };
-  
+
   Broadway.nowValue = nowValue;
-  
+
   return Broadway;
-  
+
   })();
-  
-  
+
+
 }));
 
 
@@ -1511,7 +1511,7 @@ function Program(gl) {
 Program.prototype = {
   attach: function (shader) {
     this.gl.attachShader(this.program, shader.shader);
-  }, 
+  },
   link: function () {
     this.gl.linkProgram(this.program);
     // If creating the shader program failed, alert.
@@ -1545,10 +1545,10 @@ function Script() {}
 
 Script.createFromElementId = function(id) {
   var script = document.getElementById(id);
-  
+
   // Didn't find an element with the specified ID, abort.
   assert(script , "Could not find shader with ID: " + id);
-  
+
   // Walk through the source element's children, building the shader source string.
   var source = "";
   var currentChild = script .firstChild;
@@ -1558,7 +1558,7 @@ Script.createFromElementId = function(id) {
     }
     currentChild = currentChild.nextSibling;
   }
-  
+
   var res = new Scriptor();
   res.type = script.type;
   res.source = source;
@@ -1586,7 +1586,7 @@ var error = require('../utils/error');
 
 
 function Shader(gl, script) {
-  
+
   // Now figure out what type of shader script we have, based on its MIME type.
   if (script.type == "x-shader/x-fragment") {
     this.shader = gl.createShader(gl.FRAGMENT_SHADER);
@@ -1596,13 +1596,13 @@ function Shader(gl, script) {
     error("Unknown shader type: " + script.type);
     return;
   }
-  
+
   // Send the source to the shader object.
   gl.shaderSource(this.shader, script.source);
-  
+
   // Compile the shader program.
   gl.compileShader(this.shader);
-  
+
   // See if it compiled successfully.
   if (!gl.getShaderParameter(this.shader, gl.COMPILE_STATUS)) {
     error("An error occurred compiling the shaders: " + gl.getShaderInfoLog(this.shader));
@@ -1628,7 +1628,7 @@ function Texture(gl, size, format) {
   this.size = size;
   this.texture = gl.createTexture();
   gl.bindTexture(gl.TEXTURE_2D, this.texture);
-  this.format = format ? format : gl.LUMINANCE; 
+  this.format = format ? format : gl.LUMINANCE;
   gl.texImage2D(gl.TEXTURE_2D, 0, this.format, size.w, size.h, 0, this.format, gl.UNSIGNED_BYTE, null);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
@@ -1640,7 +1640,7 @@ var textureIDs = null;
 Texture.prototype = {
   fill: function(textureData, useTexSubImage2D) {
     var gl = this.gl;
-    assert(textureData.length >= this.size.w * this.size.h, 
+    assert(textureData.length >= this.size.w * this.size.h,
            "Texture size mismatch, data:" + textureData.length + ", texture: " + this.size.w * this.size.h);
     gl.bindTexture(gl.TEXTURE_2D, this.texture);
     if (useTexSubImage2D) {
@@ -1668,7 +1668,7 @@ module.exports = Texture;
 
 /**
  * Generic WebGL backed canvas that sets up: a quad to paint a texture on, appropriate vertex/fragment shaders,
- * scene parameters and other things. Specialized versions of this class can be created by overriding several 
+ * scene parameters and other things. Specialized versions of this class can be created by overriding several
  * initialization methods.
 
  */
@@ -1678,7 +1678,7 @@ var error  = require('../utils/error');
 var makePerspective  = require('../utils/glUtils').makePerspective;
 var Matrix = require('sylvester.js').Matrix;
 var Class  = require('uclass');
-  
+
 
 var vertexShaderScript = Script.createFromSource("x-shader/x-vertex", `
   attribute vec3 aVertexPosition;
@@ -1709,7 +1709,7 @@ var WebGLCanvas = new Class({
     this.size = size;
     this.canvas.width = size.w;
     this.canvas.height = size.h;
-    
+
     this.onInitWebGL();
     this.onInitShaders();
     this.initBuffers();
@@ -1730,7 +1730,7 @@ var WebGLCanvas = new Class({
     var gl = this.gl;
 
     // Create framebuffer object and texture.
-    this.framebuffer = gl.createFramebuffer(); 
+    this.framebuffer = gl.createFramebuffer();
     gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer);
     this.framebufferTexture = new Texture(this.gl, this.size, gl.RGBA);
 
@@ -1752,22 +1752,22 @@ var WebGLCanvas = new Class({
   initBuffers : function () {
     var tmp;
     var gl = this.gl;
-    
+
     // Create vertex position buffer.
     this.quadVPBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, this.quadVPBuffer);
     tmp = [
        1.0,  1.0, 0.0,
-      -1.0,  1.0, 0.0, 
-       1.0, -1.0, 0.0, 
+      -1.0,  1.0, 0.0,
+       1.0, -1.0, 0.0,
       -1.0, -1.0, 0.0];
-    
+
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(tmp), gl.STATIC_DRAW);
     this.quadVPBuffer.itemSize = 3;
     this.quadVPBuffer.numItems = 4;
-    
+
     /*
-     +--------------------+ 
+     +--------------------+
      | -1,1 (1)           | 1,1 (0)
      |                    |
      |                    |
@@ -1777,10 +1777,10 @@ var WebGLCanvas = new Class({
      | -1,-1 (3)          | 1,-1 (2)
      +--------------------+
      */
-    
+
     var scaleX = 1.0;
     var scaleY = 1.0;
-    
+
     // Create vertex texture coordinate buffer.
     this.quadVTCBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, this.quadVTCBuffer);
@@ -1813,14 +1813,14 @@ var WebGLCanvas = new Class({
 
   initScene : function() {
     var gl = this.gl;
-    
+
     // Establish the perspective with which we want to view the
     // scene. Our field of view is 45 degrees, with a width/height
     // ratio of 640:480, and we only want to see objects between 0.1 units
     // and 100 units away from the camera.
-    
+
     this.perspectiveMatrix = makePerspective(45, 1, 0.1, 100.0);
-    
+
     // Set the drawing position to the "identity" point, which is
     // the center of the scene.
     this.mvIdentity();
@@ -1833,16 +1833,16 @@ var WebGLCanvas = new Class({
     // array, setting attributes, and pushing it to GL.
     gl.bindBuffer(gl.ARRAY_BUFFER, this.quadVPBuffer);
     gl.vertexAttribPointer(this.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
-    
+
     // Set the texture coordinates attribute for the vertices.
-    
+
     gl.bindBuffer(gl.ARRAY_BUFFER, this.quadVTCBuffer);
-    gl.vertexAttribPointer(this.textureCoordAttribute, 2, gl.FLOAT, false, 0, 0);  
-    
+    gl.vertexAttribPointer(this.textureCoordAttribute, 2, gl.FLOAT, false, 0, 0);
+
     this.onInitSceneTextures();
-    
+
     this.setMatrixUniforms();
-    
+
     if (this.framebuffer) {
       console.log("Bound Frame Buffer");
       gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer);
@@ -1873,9 +1873,10 @@ var WebGLCanvas = new Class({
   onInitWebGL: function () {
     console.log('ON INIT WEBGL');
     try {
+      // this preserveDrawingBuffer makes the capture in the UI possible 
       this.gl = this.canvas.getContext("experimental-webgl", {preserveDrawingBuffer: true});
     } catch(e) {}
-    
+
     if (!this.gl) {
       error("Unable to initialize WebGL. Your browser may not support it.");
     }
@@ -1947,11 +1948,11 @@ var YUVCanvas = new Class({
 
     var lumaSize = width * height;
     var chromaSize = lumaSize >> 2;
-    
+
     var ybuf = buffer.subarray(0, lumaSize);
     var ubuf = buffer.subarray(lumaSize, lumaSize + chromaSize);
     var vbuf = buffer.subarray(lumaSize + chromaSize, lumaSize + 2 * chromaSize);
-    
+
     for (var y = 0; y < height; y++) {
       for (var x = 0; x < width; x++) {
         var yIndex = x + y * width;
@@ -1960,7 +1961,7 @@ var YUVCanvas = new Class({
         var R = 1.164 * (ybuf[yIndex] - 16) + 1.596 * (vbuf[vIndex] - 128);
         var G = 1.164 * (ybuf[yIndex] - 16) - 0.813 * (vbuf[vIndex] - 128) - 0.391 * (ubuf[uIndex] - 128);
         var B = 1.164 * (ybuf[yIndex] - 16) + 2.018 * (ubuf[uIndex] - 128);
-        
+
         var rgbIndex = yIndex * 4;
         this.canvasBuffer.data[rgbIndex+0] = R;
         this.canvasBuffer.data[rgbIndex+1] = G;
@@ -1968,9 +1969,9 @@ var YUVCanvas = new Class({
         this.canvasBuffer.data[rgbIndex+3] = 0xff;
       }
     }
-    
+
     this.canvasCtx.putImageData(this.canvasBuffer, 0, 0);
-    
+
     var date = new Date();
     //console.log("WSAvcPlayer: Decode time: " + (date.getTime() - this.rcvtime) + " ms");
   },
@@ -2480,13 +2481,13 @@ function identSize(M, m, n, k) {
 
     while(i--) {
 	var row = [];
-	
+
 	for(var j = 0; j < n; j++)
 	    row.push(j == i ? 1 : 0);
-	
+
         e.unshift(row);
     }
-    
+
     for(var i = k - 1; i < m; i++) {
         while(e[i].length < n)
             e[i].unshift(0);
@@ -2555,14 +2556,14 @@ function qrJs() {
     var n = this.cols();
     var Q = Matrix.I(m);
     var A = this;
-    
+
     for(var k = 1; k < Math.min(m, n); k++) {
 	var ak = A.slice(k, 0, k, k).col(1);
 	var oneZero = [1];
-	
+
 	while(oneZero.length <=  m - k)
 	    oneZero.push(0);
-	
+
 	oneZero = $V(oneZero);
 	var vk = ak.add(oneZero.x(ak.norm() * Math.sign(ak.e(1))));
 	var Vk = $M(vk);
@@ -2572,7 +2573,7 @@ function qrJs() {
 	// slow way to compute Q
 	Q = Q.x(Qk);
     }
-    
+
     return {Q: Q, R: A};
 }
 
@@ -2603,13 +2604,13 @@ Matrix.prototype = {
 	var k = this.cols();
 	var Ureduce = U.slice(1, U.rows(), 1, k);
 	return this.x(Ureduce.transpose());
-    },    
+    },
 
     // grab the upper triangular part of the matrix
     triu: function(k) {
 	if(!k)
 	    k = 0;
-	
+
 	return this.map(function(x, i, j) {
 	    return j - i >= k ? x : 0;
 	});
@@ -2618,7 +2619,7 @@ Matrix.prototype = {
     // unroll a matrix into a vector
     unroll: function() {
 	var v = [];
-	
+
 	for(var i = 1; i <= this.cols(); i++) {
 	    for(var j = 1; j <= this.rows(); j++) {
 		v.push(this.e(j, i));
@@ -2631,10 +2632,10 @@ Matrix.prototype = {
     // return a sub-block of the matrix
     slice: function(startRow, endRow, startCol, endCol) {
 	var x = [];
-	
+
 	if(endRow == 0)
 	    endRow = this.rows();
-	
+
 	if(endCol == 0)
 	    endCol = this.cols();
 
@@ -2775,10 +2776,10 @@ Matrix.prototype = {
 
 	var returnVector = matrix.modulus ? true : false;
 	var M = matrix.elements || matrix;
-	if (typeof(M[0][0]) == 'undefined') 
+	if (typeof(M[0][0]) == 'undefined')
 	    M = Matrix.create(M).elements;
-	if (!this.canMultiplyFromLeft(M)) 
-	    return null; 
+	if (!this.canMultiplyFromLeft(M))
+	    return null;
 	var e = this.elements, rowThis, rowElem, elements = [],
         sum, m = e.length, n = M[0].length, o = e[0].length, i = m, j, k;
 
@@ -3205,7 +3206,7 @@ Matrix.prototype = {
 
 	return $V(mins);
     },
-    
+
     // perorm a partial pivot on the matrix. essentially move the largest
     // row below-or-including the pivot and replace the pivot's row with it.
     // a pivot matrix is returned so multiplication can perform the transform.
@@ -3224,13 +3225,13 @@ Matrix.prototype = {
 	    var tmp = A.elements[k - 1];
 	    A.elements[k - 1] = A.elements[maxIndex - 1];
 	    A.elements[maxIndex - 1] = tmp;
-	    
+
 	    P.elements[k - 1][k - 1] = 0;
 	    P.elements[k - 1][maxIndex - 1] = 1;
 	    P.elements[maxIndex - 1][maxIndex - 1] = 0;
 	    P.elements[maxIndex - 1][k - 1] = 1;
 	}
-	
+
 	return P;
     },
 
@@ -3267,7 +3268,7 @@ Matrix.prototype = {
 
 	return $V(xa.reverse());
     },
-    
+
     luJs: luJs,
     svdJs: svdJs,
     qrJs: qrJs,
@@ -3286,24 +3287,24 @@ function luJs() {
 
     for(var k = 1; k <= Math.min(A.cols(), A.rows()); k++) {
 	P = A.partialPivot(k, p, P, A, L);
-	
+
 	for(var i = k + 1; i <= A.rows(); i++) {
 	    var l = A.e(i, p) / A.e(k, p);
 	    L.elements[i - 1][k - 1] = l;
-	    
+
 	    for(var j = k + 1 ; j <= A.cols(); j++) {
 		A.elements[i - 1][j - 1] -= A.e(k, j) * l;
 	    }
 	}
-	
+
 	for(var j = k; j <= A.cols(); j++) {
 	    U.elements[k - 1][j - 1] = A.e(k, j);
 	}
 
 	if(p < A.cols())
 	    p++;
-    }    
-    
+    }
+
     return {L: L, U: U, P: P};
 }
 
@@ -3741,12 +3742,12 @@ module.exports = Plane;
 // Copyright (c) 2011, Chris Umbel, James Coglan
 // This file is required in order for any other classes to work. Some Vector methods work with the
 // other Sylvester classes and are useless unless they are included. Other classes such as Line and
-// Plane will not function at all without Vector being loaded first.           
+// Plane will not function at all without Vector being loaded first.
 
 Math.sign = function(x) {
     return x < 0 ? -1: 1;
 }
-                                              
+
 var Sylvester = {
     precision: 1e-6,
     approxPrecision: 1e-5
@@ -3884,7 +3885,7 @@ Vector.prototype = {
     add: function(value) {
 	var V = value.elements || value;
 
-	if (this.elements.length != V.length) 
+	if (this.elements.length != V.length)
 	    return this.map(function(v) { return v + value });
 	else
 	    return this.map(function(x, i) { return x + V[i - 1]; });
@@ -3973,7 +3974,7 @@ Vector.prototype = {
     // Both vectors must have equal dimensionality
     dot: function(vector) {
 	var V = vector.elements || vector;
-	var i, product = 0, n = this.elements.length;	
+	var i, product = 0, n = this.elements.length;
 	if (n != V.length) { return null; }
 	while (n--) { product += this.elements[n] * V[n]; }
 	return product;
@@ -4007,8 +4008,8 @@ Vector.prototype = {
 	var maxIndex = -1;
 
 	while (i--) {
-	    if (Math.abs(this.elements[i]) > Math.abs(m)) { 
-		m = this.elements[i]; 
+	    if (Math.abs(this.elements[i]) > Math.abs(m)) {
+		m = this.elements[i];
 		maxIndex = i + 1;
 	    }
 	}
@@ -4198,7 +4199,7 @@ module.exports = Vector;
 "use strict";
 
 /**
- * Represents a 2-dimensional size value. 
+ * Represents a 2-dimensional size value.
  */
 
 function Size(w, h) {

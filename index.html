@@ -4,136 +4,264 @@
 
 <head>
   <title>lair security</title>
+  <link href="https://fonts.googleapis.com/css?family=Rationale" rel="stylesheet">
+  <link rel="stylesheet" href="/main.css" />
+  <script defer src="https://use.fontawesome.com/releases/v5.0.4/js/all.js"></script>
+</head>
 
-  <style>
-    html {
-      font-family: sans-serif;
-      padding: 0;
-      margin: 0;
-      background: white;
-      height: 100%;
-      width: 100%;
-    }
+<body>
+  <script src="/mystuff/socket.io.js"></script>
+  <script src="/mockFaceData.js"></script>
+  <script type="text/javascript" src="raspi-stream/http-live-player.js">
+    ;
+  </script>
 
-    body {
-      padding: 0;
-      margin: 0;
-      height: 100%;
-      width: 100%;
-      background: gray;
-    }
+  <audio id="authInSndElm" src="/auth-in.ogg"></audio>
+  <audio id="fiveSndElm" src="/five.ogg"></audio>
+  <audio id="fourSndElm" src="/four.ogg"></audio>
+  <audio id="threeSndElm" src="/three.ogg"></audio>
+  <audio id="twoSndElm" src="/two.ogg"></audio>
+  <audio id="oneSndElm" src="/one.ogg"></audio>
+  <audio id="zeroSndElm" src="/zero.ogg"></audio>
+  <audio id="analyzingSndElm" src="/analyzing.ogg"></audio>
+  <audio id="authFailedSndElm" src="/auth-failed.ogg"></audio>
+  <audio id="authOKSndElm" src="/authenticated.ogg"></audio>
 
-    #mainImage {
-      position: absolute;
-      top: 0;
-      left: 0;
-    }
 
-    #mainCanvas {
-      left: 0;
-      top: 0;
-      border: 1px solid red;
-    }
 
-    .buttons {
-      z-index: 5;
-    }
-
-    #secondCanvas {
-      z-index: 1;
-      position: absolute;
-      left: 0;
-      top: 0;
-      height: 100%;
-      width: 100%;
-      border: 5px solid black;
-    }
-
-    .image-container {
-      position: relative;
-      width: 1024px;
-      height: 768px;
-      margin-left: auto;
-      margin-right: auto;
-      text-align: center;
-    }
-
-    .center-column {
-      text-align: center;
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    .text {
-      z-index: 10;
-      color: red;
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      font-size: 4.0em;
-    }
-  </style>
-
-  <body>
-    <script src="/mystuff/socket.io.js"></script>
-    <script src="/mockFaceData.js"></script>
-    <script type="text/javascript" src="raspi-stream/http-live-player.js">
-      ;
-    </script>
-
-    <div class="center-column">
-      <div class="image-container">
-        <!--img id="mainImage" src="/camera-snapshot.png" /-->
-        <div class="text">PLEASE AUTHENTICATE</div>
-        <canvas id="mainCanvas"></canvas>
+  <div class="center-column">
+    <div class="top-text">
+      <div id="authOK">AUTHENTICATION OK</div>
+      <div id="authenticateIn">AUTHENTICATE IN <span class="count-down">5</span></div>
+      <div id="analyzing">ANALYZING <i class="fas fa-sync fa-spin"></i></div>
+      <div id="authFailed">AUTHENTICATION FAILED <i class="fas fa-exclamation-triangle"></i></div>
+    </div>
+    <div class="canvas-wrapper">
+      <canvas id="mainCanvas"></canvas>
+      <canvas id="faceGeometry"></canvas>
+      <img class="still-image" src="hugh.jpg"/>
+      <div id="textOnVideo" class="text-on-video">
+        <div id="faceStatsLabelBox" class="labels">
+          <div class="label">Age:</div>
+          <div class="label">Sex:</div>
+          <div class="label">Beard:</div>
+          <div class="label">Smile:</div>
+        </div>
+        <div id="faceStatsBox" class="values">
+          <div id="ageValueElm" class="value"></div>
+          <div id="sexValueElm" class="value"></div>
+          <div id="beardValueElm" class="value"></div>
+          <div id="smileValueElm" class="value"></div>
+        </div>
       </div>
     </div>
+  </div>
 
-    <input class="buttons" id="snap" type="button" value="snap"></input>
-    <input class="buttons" id="start" type="button" value="start"></input>
+  <input class="buttons" id="snap" type="button" value="snap"></input>
+  <input class="buttons" id="start" type="button" value="start"></input>
+  <input class="buttons" id="startCountdown" type="button" value="start countdown"></input>
+  <input class="buttons" id="authFailedBtn" type="button" value="auth failed"></input>
+  <input class="buttons" id="vidImageToggle" type="button" value="vid image toggle"></input>
+  <input class="buttons" id="drawFaceGeoBtn" type="button" value="draw face geo"></input>
 
-    <script>
-      let mainImage
-      let snap, start
-      let mySocket
-      let mainCanvas, secondCanvas
 
-      function init() {
-        mainImage = document.querySelector("#mainImage")
-        mainCanvas = document.querySelector("#mainCanvas")
-        snap = document.querySelector("#snap")
-        start = document.querySelector("#start")
-        mySocket = io('/mystuff')
+  <script>
+    let stillImage
+    let snap, start
+    let mySocket
+    let mainCanvas, secondCanvas
+    let countDown
+    let startCountdown
+    let authOKElm, authenticateInElm, analyzingElm, authFailedElm
+    let stillImageElm
+    let showVid = true
+    let faveGeoCanvas, faceGeoContext
+    let authInSndElm, fiveSndElm, fourSndElm, threeSndElm, twoSndElm, oneSndElm, zeroSndElm, analyzingSndElm, authFailedSndElm, authOKSndElm
+    let ageValueElm, sexValueElm, beardValueElm, smileValueElm
+    let faceStatsBox, faceStatsLabelBox, textOnVideo
 
-        //let drawCtx = mainCanvas.getContext("2d")
+    const imageWidth = 1280
+    const imageHeight = 720
 
-        snap.addEventListener('click', () => {
-          console.log('snappy, take picture of canvas')
-          let picURL = mainCanvas.toDataURL()
-          fetch('/savepic', {
-            method: 'POST',
-            body: picURL
-          })
-        })
+    function init() {
+      stillImage = document.querySelector(".still-image")
+      mainCanvas = document.querySelector("#mainCanvas")
+      snap = document.querySelector("#snap")
+      start = document.querySelector("#start")
+      mySocket = io('/mystuff')
+      countDown = document.querySelector('.count-down')
+      startCountdown = document.querySelector('#startCountdown')
+      authOKElm = document.querySelector('#authOK')
+      authenticateInElm = document.querySelector('#authenticateIn')
+      analyzingElm = document.querySelector('#analyzing')
+      authFailedElm = document.querySelector('#authFailed')
+      stillImageElm = document.querySelector('.still-image')
+      faceGeoCanvas = document.querySelector('#faceGeometry')
 
-        start.addEventListener('click', () => {
-          console.log('start')
-          wsavc.playStream()
-        })
+      authInSndElm = document.querySelector('#authInSndElm')
+      fiveSndElm = document.querySelector('#fiveSndElm')
+      fourSndElm = document.querySelector('#fourSndElm')
+      threeSndElm = document.querySelector('#threeSndElm')
+      twoSndElm = document.querySelector('#twoSndElm')
+      oneSndElm = document.querySelector('#oneSndElm')
+      zeroSndElm = document.querySelector('#zeroSndElm')
+      analyzingSndElm = document.querySelector('#analyzingSndElm')
+      authFailedSndElm = document.querySelector('#authFailedSndElm')
+      authOKSndElm = document.querySelector('#authOKSndElm')
 
-        // Create h264 player
-        let uri = "ws://" + document.location.host
-        let wsavc = new WSAvcPlayer(mainCanvas, "webgl", 1, 35)
-        wsavc.connect(uri)
+      faceStatsLabelBox = document.querySelector('#faceStatsLabelBox')
+      faceStatsBox = document.querySelector('#faceStatsBox')
+      ageValueElm = document.querySelector('#ageValueElm')
+      sexValueElm = document.querySelector('#sexValueElm')
+      beardValueElm = document.querySelector('#beardValueElm')
+      smileValueElm = document.querySelector('#smileValueElm')
 
+      textOnVideo = document.querySelector('#textOnVideo')
+
+      textElements = [authOKElm, authenticateInElm, analyzingElm, authFailedElm]
+
+      soundMap = {
+        5: fiveSndElm,
+        4: fourSndElm,
+        3: threeSndElm,
+        2: twoSndElm,
+        1: oneSndElm,
+        0: zeroSndElm
       }
 
-      window.onload = () => {
-        console.log('onload')
-        init()
+      faceGeoCanvas.width = imageWidth
+      faceGeoCanvas.height = imageHeight
+      faceGeoContext = faceGeoCanvas.getContext("2d")
+
+
+      const authOK = () => {
+        textElements.forEach(e => e.style.display = 'none')
+        authOKElm.style.display = 'block';
+        authOKSndElm.currentTime = 0
+        authOKSndElm.play()
       }
-    </script>
-  </body>
+
+      const authenticateIn = () => {
+        textElements.forEach(e => e.style.display = 'none')
+        authenticateInElm.style.display = 'block';
+        authInSndElm.currentTime = 0
+        authInSndElm.play()
+      }
+
+      const analyzing = () => {
+        textElements.forEach(e => e.style.display = 'none')
+        analyzingElm.style.display = 'block';
+        analyzingSndElm.currentTime = 0
+        analyzingSndElm.play()
+      }
+
+      const authFailed = () => {
+        textElements.forEach(e => e.style.display = 'none')
+        authFailedElm.style.display = 'block';
+        authFailedSndElm.currentTime = 0
+        authFailedSndElm.play()
+      }
+
+
+
+      snap.addEventListener('click', () => {
+        console.log('snappy, take picture of canvas')
+        let picURL = mainCanvas.toDataURL()
+        fetch('/savepic', {
+          method: 'POST',
+          body: picURL
+        })
+      })
+
+      start.addEventListener('click', () => {
+        console.log('start')
+        wsavc.playStream()
+      })
+
+      startCountdown.addEventListener('click', () => {
+        authenticateIn()
+        let count = 5
+        const countInterval = setInterval(() => {
+          if (count < 0) {
+            clearInterval(countInterval)
+            analyzing()
+          } else {
+            countDown.innerHTML = `${count}`
+            const countSound = soundMap[count]
+            countSound.currentTime = 0
+            countSound.play()
+            count--
+          }
+        }, 1000)
+      })
+
+      authFailedBtn.addEventListener('click', () => {
+        authFailed()
+      })
+
+      vidImageToggle.addEventListener('click', () => {
+        if (showVid) {
+          mainCanvas.style.display='none'
+          stillImageElm.style.display='block'
+          showVid = false
+        } else {
+          mainCanvas.style.display='block'
+          stillImageElm.style.display='none'
+          showVid = true
+        }
+      })
+
+      drawFaceGeoBtn.addEventListener('click', () => {
+        drawFaceGeo()
+        addFaceStats()
+      })
+
+      // Create h264 player
+      let uri = "ws://" + document.location.host
+      let wsavc = new WSAvcPlayer(mainCanvas, "webgl", 1, 35)
+      wsavc.connect(uri)
+
+    }
+
+    function drawFaceGeo() {
+      testFaceData.FaceDetails[0].Landmarks.forEach(point => { // first face
+        let xCoord = Math.floor(point.X * stillImage.width)
+        let yCoord = Math.floor(point.Y * stillImage.height)
+        console.log(`NEW xCoord ${xCoord} yCoord ${yCoord}`)
+        faceGeoContext.beginPath();
+        faceGeoContext.arc(xCoord, yCoord, 2, 0, 2 * Math.PI, false);
+        faceGeoContext.lineWidth = 2;
+        faceGeoContext.strokeStyle = '#00ff00';
+        faceGeoContext.stroke();
+      })
+    }
+
+    function addFaceStats() {
+      textOnVideo.style.visibility = 'visible'
+
+      ageValueElm.innerHTML = `${testFaceData.FaceDetails[0].AgeRange.Low} - ${testFaceData.FaceDetails[0].AgeRange.High}`
+      sexValueElm.innerHTML = `${testFaceData.FaceDetails[0].Gender.Confidence.toFixed(1)}% ${testFaceData.FaceDetails[0].Gender.Value}`
+      beardValueElm.innerHTML = `${testFaceData.FaceDetails[0].Beard.Confidence.toFixed(1)}% ${testFaceData.FaceDetails[0].Beard.Value}`
+      smileValueElm.innerHTML = `${testFaceData.FaceDetails[0].Smile.Confidence.toFixed(1)}%  ${testFaceData.FaceDetails[0].Smile.Value}`
+      testFaceData.FaceDetails[0].Emotions.forEach(e => {
+        const newLabel = document.createElement('div')
+        newLabel.classList.add('label')
+        const cleanLabel = e.Type.toLowerCase().substr(0,1).toUpperCase() + e.Type.toLowerCase().substr(1)
+        newLabel.innerHTML = `${cleanLabel}:`
+        faceStatsLabelBox.appendChild(newLabel)
+
+        const newStat = document.createElement('div')
+        newStat.classList.add('value')
+        newStat.innerHTML = `${e.Confidence.toFixed(1)}%`
+        faceStatsBox.appendChild(newStat)
+      })
+    }
+
+    window.onload = () => {
+      console.log('onload')
+      init()
+    }
+  </script>
+</body>
 
 </html>
