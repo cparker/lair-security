@@ -12,9 +12,7 @@
 <body>
   <script src="/mystuff/socket.io.js"></script>
   <script src="/mockFaceData.js"></script>
-  <script type="text/javascript" src="raspi-stream/http-live-player.js">
-    ;
-  </script>
+  <script type="text/javascript" src="raspi-stream/http-live-player.js">;</script>
 
   <audio id="authInSndElm" src="/auth-in.ogg"></audio>
   <audio id="fiveSndElm" src="/five.ogg"></audio>
@@ -88,7 +86,7 @@
       mainCanvas = document.querySelector("#mainCanvas")
       snap = document.querySelector("#snap")
       start = document.querySelector("#start")
-      mySocket = io('/mystuff')
+      mySocket = io('/fred',{path:'/mystuff'}).connect()
       countDown = document.querySelector('.count-down')
       startCountdown = document.querySelector('#startCountdown')
       authOKElm = document.querySelector('#authOK')
@@ -217,9 +215,19 @@
       })
 
       // Create h264 player
-      let uri = "ws://" + document.location.host
+      let uri = `ws://${document.location.host}/video`
+      console.log(`ws uri is ${uri}`)
       let wsavc = new WSAvcPlayer(mainCanvas, "webgl", 1, 35)
       wsavc.connect(uri)
+
+      // SOCKET EvENTS
+      mySocket.on('connect', c => {
+        console.log('connected', c)
+      })
+
+      mySocket.on('test', d => {
+        console.log('got a test event', d)
+      })
 
     }
 

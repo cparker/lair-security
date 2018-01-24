@@ -53,7 +53,7 @@ let gameBoard = {
 // ARMED, AUTHENTICATING-LOCAL, AUTHENTICATING-REMOTE, AUTHENTICATED,
 let state = 'ARMED'
 
-app.use(morgan('combined'))
+app.use(morgan('dev'))
 app.use(cookieParser())
 
 app.use((req, res, next) => {
@@ -133,8 +133,9 @@ if (process.env.NODE_ENV !== 'test') {
     console.log(`set gpio pin ${motionPin} to INPUT detect rising`)
 }
 
-io.on('connection', localClient => {
+io.of('/fred').on('connection', localClient => {
     // FIXME: note that we're storing the last connected client globally
+    console.log('client connected', localClient)
     client = localClient
     console.log('HEADERS', client.handshake.headers)
     const cookieID = getCookieID(client.handshake.headers.cookie)
@@ -354,6 +355,13 @@ function captureSimpleImage() {
         })
     })
 }
+
+setInterval(() => {
+  if (client) {
+    console.log('emiting')
+    client.emit('test', {'data' : 'man this is great data'})
+  }
+}, 1000)
 
 async function go() {
     while (true) {

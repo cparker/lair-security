@@ -17,7 +17,10 @@ class _Server {
         height: 720,
     }, options);
 
-    this.wss = new WebSocketServer({ server });
+    this.wss = new WebSocketServer({
+      server : server,
+      path: '/video'
+    });
 
     this.new_client = this.new_client.bind(this);
     this.start_feed = this.start_feed.bind(this);
