@@ -99,6 +99,10 @@ app.post('/savepic', (req, res, next) => {
     fs.writeFileSync('canvas-snap.png', base64Data)
 })
 
+/*
+  The API takes a source and target image, then returns an array of matched faces in the TARGET
+  So we'll use the authorizedFaces as the source and pass the new capture as the target
+*/
 app.post('/uploadSnapAndCompare', async(req, res, next) => {
     console.log('uploadSnapAndCompare')
     const postText = req.body.toString('utf-8')
@@ -108,7 +112,7 @@ app.post('/uploadSnapAndCompare', async(req, res, next) => {
     fs.writeFileSync(imageFileName, base64Data)
 
     try {
-        const compareResult = await compareFacesPromise(imageFileName, authorizedFacesFilename)
+        const compareResult = await compareFacesPromise(authorizedFacesFilename, imageFileName)
         res.status(201).json(compareResult)
     } catch (err) {
         console.log(err)
