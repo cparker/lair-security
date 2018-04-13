@@ -152,6 +152,17 @@
           method: 'POST',
           body: picURL
         })
+        .then(response => {
+          console.log('ONE got response')
+          return response.json()
+        })
+        .then(j => {
+          console.log('ONE got j', j)
+        })
+        .catch(err => {
+          console.log('ONE got err', err)
+        })
+
       }
 
       function takeSnapAndCompare() {
