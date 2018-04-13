@@ -36,6 +36,9 @@ class _Server {
 
     readStream = readStream.pipe(new Splitter(NALseparator));
     readStream.on("data", this.broadcast);
+    readStream.on("error", e => {
+      console.log('readstream error', e)
+    })
   }
 
   get_feed() {
