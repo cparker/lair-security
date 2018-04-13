@@ -37,6 +37,8 @@ const alarmResetTimeSec = process.env.ALARM_RESET_SEC || 30
 
 const authorizedFacesFilename = 'authorizedFaces.jpg'
 
+const matchThreshold = 80
+
 let lastMotionTimestamp = (new Date()).getTime()
 
 let gpio
@@ -103,7 +105,12 @@ app.post('/uploadSnapAndCompare', async(req, res, next) => {
 
     try {
         const compareResult = await compareFacesPromise(authorizedFacesFilename, imageFileName)
-        clearTimeout(alarmTimeout)
+        if (compareResult.FaceMatches && compareResult.FaceMatches.length > 0 && compareResult.FaceMatches[0].Similarity >= matchThreshold) {
+            console.log('auth succeeded clearing alarm timeout')
+            if (alarmTimeout) {
+                clearTimeout(alarmTimeout)
+            }
+        }
         res.status(201).json(compareResult)
     } catch (err) {
         console.log(err)

@@ -171,7 +171,7 @@
           })
           .then(data => {
             console.log('uploadSnapCompareResponseData', data)
-            if (data.FaceMatches && data.FaceMatches.length > 0 && data.FaceMatches[0].Similarity > matchThreshold) {
+            if (data.FaceMatches && data.FaceMatches.length > 0 && data.FaceMatches[0].Similarity >= matchThreshold) {
               authOK()
             } else {
               authFailed()
@@ -278,6 +278,7 @@
       })
 
       function handleMotionAlarm() {
+        displayMain()
         videoPlayer.playStream()
         authCountdown()
       }
