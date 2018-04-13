@@ -160,6 +160,7 @@
         stillImageElm.src = picURL
 
         displayStillImage()
+        videoPlayer.stopStream()
         analyzing()
         uploadSnapAndCompare(picURL)
           .then(result => {
@@ -174,14 +175,22 @@
               authFailed()
             }
 
-            if (data.FaceMatches && data.FaceMatches.length > 0) {
-              drawFaceLandmarks(data.FaceMatches.Face.Landmarks)
+            // handle exception of drawing face geo separately so it doesn't trigger authfailed state
+            try {
+              if (data.FaceMatches && data.FaceMatches.length > 0) {
+                data.FaceMatches.forEach (mf => {
+                  drawFaceLandmarks(mf.Face.Landmarks)
+                })
+              }
+              if (data.UnmatchedFaces && data.UnmatchedFaces.length > 0) {
+                data.UnmatchedFaces.forEach(uf => {
+                  drawFaceLandmarks(f.Landmarks)
+                })
+              }
+            } catch (err) {
+              console.log('caught error drawing face landmarks')
             }
-            if (data.UnmatchedFaces && data.UnmatchedFaces.length > 0) {
-              data.UnmatchedFaces.forEach(uf => {
-                drawFaceLandmarks(f.Landmarks)
-              })
-            }
+
           })
           .catch(err => {
             console.log('error uploading snapshot', err)
