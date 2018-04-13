@@ -79,9 +79,10 @@ class _Server {
 
       if(action == "REQUESTSTREAM")
         self.start_feed();
-      if(action == "STOPSTREAM")
+      if(action == "STOPSTREAM") {
         self.readStream.end();
         self.kill_feed()
+      }
     });
 
     socket.on('close', function() {
