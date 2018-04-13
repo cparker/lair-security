@@ -2,7 +2,7 @@
   --text-on-vid-foreground: #9df99d;
   --text-on-vid-background: #222222;
   --video-width: 1280px;
-  --video-height: 720px;
+  --video-height: 768px;
 }
 
 html {
@@ -100,8 +100,8 @@ body {
 
 .canvas-wrapper {
   position: relative;
-  width: 1280px;
-  height: 720px;
+  width: var(--video-width);
+  height: var(--video-height);
   margin-left: auto;
   margin-right: auto;
   text-align: center;
