@@ -10,11 +10,9 @@ const io = require('socket.io')(server, {
     path: '/mystuff'
 })
 // const io = require('socket.io')(server)
-const RaspiCam = require('raspicam')
 const {
     exec
 } = require('child_process')
-const path = require('path')
 
 const AWS = require('aws-sdk')
 const fs = require('fs')
@@ -40,19 +38,10 @@ const authorizedFacesFilename = 'authorizedFaces.jpg'
 
 let lastMotionTimestamp = (new Date()).getTime()
 
-let cv, gpio
-let moveInterval, client
-let moveIntervalPeriodMs = 5000
-let moveItemCountMax = 5
-let boardPieceMax = 20
-let camera
+let gpio
+let client
 
 let players = []
-let playerConnections = []
-let gameBoard = {
-    boardPieces: [],
-    level: -1
-}
 
 // ARMED, AUTHENTICATING-LOCAL, AUTHENTICATING-REMOTE, AUTHENTICATED,
 let state = 'ARMED'
@@ -130,34 +119,17 @@ const raspiVideoStreamOptions = {
 let getCookieID = (cookieHeader) => {
     return (() => {
         try {
-            return cookieHeader.split(';').find(x => x.indexOf(cookieName) != -1).split('=')[1]
+            return cookieHeader.split(';').find(x => x.indexOf(cookieName) !== -1).split('=')[1]
         } catch (e) {
             return null
         }
     })()
 }
 
-const captureFilename = 'camera-snapshot.png'
-
-const imageCaptureCommand = process.env.IMAGE_CAPTURE_COMMAND ||
-    `/opt/vc/bin/raspistill --output ${captureFilename} --encoding png  --width 1024 --height 768 --rotation 90 --timeout 1000 --nopreview`
-
-const cameraOpts = {
-    mode: 'photo',
-    output: 'camera-snapshot.png',
-    encoding: 'png',
-    timeout: 500,
-    width: 1280,
-    height: 1024,
-    rotation: 90
-}
-
 // CONFIGURE GPIO for motion sensor
 console.log(`NODE_ENV is ${process.env.NODE_ENV}`)
 if (process.env.NODE_ENV !== 'test') {
     console.log(`configuring GPIO`)
-    camera = new RaspiCam(cameraOpts)
-    cv = require('opencv')
     gpio = require('rpi-gpio')
     gpio.setMode(gpio.MODE_BCM)
     gpio.setup(motionPin, gpio.DIR_IN, gpio.EDGE_RISING)
@@ -222,134 +194,9 @@ if (process.env.NODE_ENV !== 'test') {
     })
 }
 
-async function findLocalFace() {
 
-    const attempts = 10
-    let found = false
-    for (let i = 0; i < attempts && !found; i++) {
-        try {
-            let capturedFilename = await captureCameraImage()
-            let face = await localFacePromise(capturedFilename)
-            found = true
-            console.log('GOT FACE', face)
-        } catch (err) {
-            console.log('GOT ERROR', err)
-        }
-    }
-}
 
-async function asyncFaceCapture() {
-    try {
-        let capture = await captureSimpleImage()
-        if (client) {
-            client.emit('newImageCaptured', {})
-        }
-    } catch (err) {
-        console.log('GOT ERROR', err)
-    }
-}
 
-async function findAWSFace() {
-    try {
-        let capture = await captureCameraImage()
-        if (client) {
-            client.emit('newImageCaptured', {})
-        }
-        // let face = await detectFaceAWSPromise(capture.filename)
-        // client.emit('drawFace', face)
-        // console.log('GOT FACE', face)
-    } catch (err) {
-        console.log('GOT ERROR', err)
-    }
-
-}
-
-function authenticate() {
-    if (client) {
-        client.emit(state, {}) // tell the client we're authenticating local
-    }
-    captureCameraImage()
-        .then(capturedImageFilename => {
-            // tell the client to display the new image
-            if (client) {
-                client.emit('newImageCaptured', {})
-            }
-
-            // local face recognition
-            return localFacePromise(capturedImageFilename)
-        })
-        .then(localFace => {
-            console.log('found face', localFace)
-            state = 'AUTHENTICATING-REMOTE'
-            if (client) {
-                client.emit(state, {})
-            }
-
-            return detectFaceAWSPromise(filename)
-        })
-        .then(awsResult => {
-            console.log('aws service returned', awsResult)
-        })
-        .catch(err => {
-            console.log('error', err)
-        })
-}
-
-function captureCameraImage() {
-    return new Promise((resolve, reject) => {
-        console.log('starting capture')
-        camera.start()
-        console.log('capture has started')
-        camera.on('read', (err, timestamp, filename) => {
-            if (err) {
-                console.log('error capturing camera image', err)
-                camera.stop()
-                reject(err)
-            } else {
-                console.log('captured camera image', filename)
-                // camera.stop()
-                resolve({
-                    filename: filename,
-                    timestamp: timestamp
-                })
-            }
-        })
-    })
-}
-
-function localFacePromise(savedImage) {
-    console.log('looking for face in', savedImage.filename)
-    const face_cascade = new cv.CascadeClassifier(path.join(__dirname, './node_modules', 'opencv', 'data', 'haarcascade_frontalface_alt2.xml'))
-
-    return new Promise((resolve, reject) => {
-        cv.readImage(savedImage.filename, (imageReadErr, image) => {
-            if (imageReadErr) {
-                console.log('image read error', imageReadErr)
-                reject(imageReadErr)
-            } else {
-                face_cascade.detectMultiScale(image, (err, faces) => {
-                    if (err) {
-                        console.log('error ', err)
-                        reject(err)
-                    } else if (faces.length <= 0) {
-                        console.log('NO FACES')
-                        reject('NO FACE')
-                    } else {
-                        const face = faces[0] // only handle first face
-                        const boxImageName = `${savedImage.filename}-box.png`
-                        console.log('biggest face', JSON.stringify(faces[0], null, 2))
-                        image.rectangle([face.x, face.y], [face.width, face.height], [0, 255, 0], 2)
-                        image.save(boxImageName)
-                        resolve({
-                            face: face,
-                            boxImageName: boxImageName
-                        })
-                    }
-                })
-            }
-        })
-    })
-}
 
 function compareFacesPromise(sourceFilename, targetFilename) {
     return new Promise((resolve, reject) => {
@@ -400,22 +247,7 @@ function detectFaceAWSPromise(filename) {
     })
 }
 
-function captureSimpleImage() {
-    return new Promise((resolve, reject) => {
-        exec(imageCaptureCommand, (err, stdout, stderr) => {
-            if (err) {
-                console.log('error during image capture', err)
-                reject(err)
-            } else {
-                console.log(stdout)
-                console.log(stderr)
-                resolve()
-            }
-        })
-    })
-}
-
-setInterval(() => {
+setTimeout(() => {
     if (client) {
         console.log('emiting')
         client.emit('test', {
@@ -428,15 +260,3 @@ async function go() {
     const compareResults = await compareFacesPromise('testSource.png', 'testTarget.jpg')
     console.log('compareResults', JSON.stringify(compareResults, null, 2))
 }
-
-//go()
-
-/*
-setInterval(() => {
-  if ((new Date()).getTime() - lastMotionTimestamp > alarmResetTimeSec * 1000) {
-    console.log('monitor sleep')
-    exec(sleepMonitorCommand)
-  }
-}, 5000)
-
-*/
