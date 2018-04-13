@@ -6,8 +6,8 @@ const app = express()
 const bodyParser = require('body-parser')
 const cookieParser = require('cookie-parser')
 const server = require('http').createServer(app)
-const io = require('socket.io')(server, {path:'/mystuff'})
-//const io = require('socket.io')(server)
+const io = require('socket.io')(server, {path: '/mystuff'})
+// const io = require('socket.io')(server)
 const RaspiCam = require('raspicam')
 const { exec } = require('child_process')
 const path = require('path')
@@ -75,32 +75,30 @@ app.get('/', function(req, res, next) {
     res.sendFile(__dirname + '/index.html')
 })
 
-
 app.use(express.static('.'))
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({
     extended: true
 }))
 app.use(bodyParser.raw({
-   type: 'text/plain',
-   limit: '200mb'
+    type: 'text/plain',
+    limit: '200mb'
 }))
 
 app.post('/savepic', (req, res, next) => {
-  console.log('savepic')
-  const postText = req.body.toString('utf-8')
-  const base64Text = postText.split('base64,')[1]
-  const base64Data = Buffer.from(base64Text, 'base64')
-  fs.writeFileSync('canvas-snap.png', base64Data)
+    console.log('savepic')
+    const postText = req.body.toString('utf-8')
+    const base64Text = postText.split('base64,')[1]
+    const base64Data = Buffer.from(base64Text, 'base64')
+    fs.writeFileSync('canvas-snap.png', base64Data)
 })
 
 const raspiVideoStreamOptions = {
-  width:1280,
-  height:768,
-  rotation:90,
-  fps:12
+    width: 1280,
+    height: 768,
+    rotation: 90,
+    fps: 12
 }
-
 
 let getCookieID = (cookieHeader) => {
     return (() => {
@@ -141,7 +139,7 @@ if (process.env.NODE_ENV !== 'test') {
 
 io.of('/fred').on('connection', localClient => {
     // FIXME: note that we're storing the last connected client globally
-    console.log('client connected' )
+    console.log('client connected')
     client = localClient
     console.log('HEADERS', client.handshake.headers)
     const cookieID = getCookieID(client.handshake.headers.cookie)
@@ -363,10 +361,10 @@ function captureSimpleImage() {
 }
 
 setInterval(() => {
-  if (client) {
-    console.log('emiting')
-    client.emit('test', {'data' : 'man this is great data'})
-  }
+    if (client) {
+        console.log('emiting')
+        client.emit('test', {data: 'man this is great data'})
+    }
 }, 1000)
 
 async function go() {
@@ -382,7 +380,7 @@ async function go() {
     }
 }
 
-//go()
+// go()
 
 /*
 setInterval(() => {
