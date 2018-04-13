@@ -181,7 +181,7 @@ if (process.env.NODE_ENV !== 'test') {
             console.log(`alarm reset period exceeded, triggering alarm`)
             exec(wakeMonitorCommand)
             if (client) {
-                client.emit('alarm', {})
+                client.emit('motionAlarm', {})
             }
         }
         lastMotionTimestamp = (new Date()).getTime()

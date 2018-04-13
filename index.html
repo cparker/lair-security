@@ -293,6 +293,10 @@
         console.log('got a test event', d)
       })
 
+      mySocket.on('motionAlarm', m => {
+        console.log('motion alarm')
+      })
+
     }
 
     function drawFaceLandmarks(landmarks) {
