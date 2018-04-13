@@ -42,6 +42,10 @@ class _Server {
     throw new Error("to be implemented");
   }
 
+  kill_feed() {
+    console.log('implemented by raspivid')
+  }
+
   broadcast(data) {
     this.wss.clients.forEach(function(socket) {
 
@@ -76,10 +80,12 @@ class _Server {
       if(action == "REQUESTSTREAM")
         self.start_feed();
       if(action == "STOPSTREAM")
-        self.readStream.pause();
+        self.readStream.end();
+        self.kill_feed()
     });
 
     socket.on('close', function() {
+      console.log('VIDEO SOCKET CLOSE')
       if (self && self.readStream) {
 	      try { self.readStream.end() } catch (err) {
                 console.log('caught error calling readStream.end()', err)
