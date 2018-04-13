@@ -31,7 +31,11 @@ class RpiServer extends Server {
 
   kill_feed() {
     console.log('killing')
-    streamer.kill('SIGKILL')
+    try {
+      streamer.kill('SIGKILL')
+    } catch (err) {
+      console.log('ignoring error sending kill', err)
+    }
 
   }
 
