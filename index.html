@@ -173,7 +173,7 @@
 
       start.addEventListener('click', () => {
         console.log('start')
-        wsavc.playStream()
+        videoPlayer.playStream()
       })
 
       startCountdown.addEventListener('click', () => {
@@ -217,8 +217,8 @@
       // Create h264 player
       let uri = `ws://${document.location.host}/video`
       console.log(`ws uri is ${uri}`)
-      let wsavc = new WSAvcPlayer(mainCanvas, "webgl", 1, 35)
-      wsavc.connect(uri)
+      let videoPlayer = new WSAvcPlayer(mainCanvas, "webgl", 1, 35)
+      videoPlayer.connect(uri)
 
       // SOCKET EvENTS
       mySocket.on('connect', c => {
