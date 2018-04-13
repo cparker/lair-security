@@ -86,7 +86,7 @@ class _Server {
 
       if(action == "STOPSTREAM") {
         try {
-          self.readStream.end();
+         // self.readStream.end();
           self.kill_feed()
         } catch (err) {
           console.log('caught error killing raspivid, ignoring', err)

@@ -33,7 +33,7 @@ const sleepMonitorCommand = process.env.SLEEP_MON || 'vcgencmd display_power 0'
 const wakeMonitorCommand = process.env.WAKE_MON || 'vcgencmd display_power 1'
 
 // alarm resets after no motion for this many seconds
-const alarmResetTimeSec = process.env.ALARM_RESET_SEC || 5
+const alarmResetTimeSec = process.env.ALARM_RESET_SEC || 30
 
 const authorizedFacesFilename = 'authorizedFaces.jpg'
 
@@ -204,7 +204,7 @@ if (process.env.NODE_ENV !== 'test') {
 
             // alert the browser
             if (client) {
-                client.emit('motionAlarm', {})
+              client.emit('motionAlarm', {})
             }
 
             // set a timeout to fire within a minute if no successful auth
