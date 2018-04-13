@@ -99,7 +99,7 @@ app.post('/savepic', (req, res, next) => {
     fs.writeFileSync('canvas-snap.png', base64Data)
 })
 
-app.post('uploadSnapAndCompare', async(req, res, next) => {
+app.post('/uploadSnapAndCompare', async(req, res, next) => {
     console.log('uploadSnapAndCompare')
     const postText = req.body.toString('utf-8')
     const base64Text = postText.split('base64,')[1]
@@ -109,7 +109,7 @@ app.post('uploadSnapAndCompare', async(req, res, next) => {
 
     try {
         const compareResult = await compareFacesPromise(imageFileName, authorizedFacesFilename)
-        res.status(201).send(compareResult)
+        res.status(201).json(compareResult)
     } catch (err) {
         console.log(err)
         res.status(500).send(err)
@@ -359,6 +359,7 @@ function compareFacesPromise(sourceFilename, targetFilename) {
                 Bytes: targetBuffer
             }
         }
+console.log('params',params)
         rekognition.compareFaces(params, (err, data) => {
             if (err) {
                 console.log('error in compare faces', err, err.stack)
@@ -424,7 +425,7 @@ async function go() {
     console.log('compareResults', JSON.stringify(compareResults, null, 2))
 }
 
-go()
+//go()
 
 /*
 setInterval(() => {
