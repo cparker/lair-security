@@ -316,11 +316,12 @@
 
       showVidBtn.addEventListener('click', () => {
         console.log('showing vid')
-        handleMotionAlarm()
+        videoPlayer.playStream()
       })
 
       showStillBtn.addEventListener('click', () => {
         console.log('showing still')
+        videoPlayer.stopStream()
       })
 
     }
