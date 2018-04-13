@@ -85,6 +85,10 @@ class _Server {
       }
     });
 
+    socket.on('error', e => {
+      console.log('socket error', e)
+    })
+
     socket.on('close', function() {
       console.log('VIDEO SOCKET CLOSE')
       if (self && self.readStream) {
