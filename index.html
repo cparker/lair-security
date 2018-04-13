@@ -81,6 +81,8 @@
     const imageWidth = 1280
     const imageHeight = 720
 
+    const matchThreshold = 80
+
     function init() {
       stillImage = document.querySelector(".still-image")
       mainCanvas = document.querySelector("#mainCanvas")
@@ -159,16 +161,31 @@
 
         displayStillImage()
         analyzing()
-        uploadSnapAndCompare(url)
+        uploadSnapAndCompare(picURL)
           .then(result => {
             console.log('uploaded snap returned')
             return result.json()
           })
           .then(data => {
             console.log('uploadSnapCompareResponseData', data)
+            if (data.FaceMatches && data.FaceMatches.length > 0 && data.FaceMatches[0].Similarity > matchThreshold) {
+              authOK()
+            } else {
+              authFailed()
+            }
+
+            if (data.FaceMatches && data.FaceMatches.length > 0) {
+              drawFaceLandmarks(data.FaceMatches.Face.Landmarks)
+            }
+            if (data.UnmatchedFaces && data.UnmatchedFaces.length > 0) {
+              data.UnmatchedFaces.forEach(uf => {
+                drawFaceLandmarks(f.Landmarks)
+              })
+            }
           })
           .catch(err => {
             console.log('error uploading snapshot', err)
+            authFailed()
           })
       }
 
@@ -267,11 +284,10 @@
 
     }
 
-    function drawFaceGeo() {
-      testFaceData.FaceDetails[0].Landmarks.forEach(point => { // first face
+    function drawFaceLandmarks(landmarks) {
+      landmarks.forEach(point => { // first face
         let xCoord = Math.floor(point.X * stillImage.width)
         let yCoord = Math.floor(point.Y * stillImage.height)
-        console.log(`NEW xCoord ${xCoord} yCoord ${yCoord}`)
         faceGeoContext.beginPath();
         faceGeoContext.arc(xCoord, yCoord, 2, 0, 2 * Math.PI, false);
         faceGeoContext.lineWidth = 2;
