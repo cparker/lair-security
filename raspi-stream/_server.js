@@ -77,11 +77,17 @@ class _Server {
       console.log('cmd is', cmd)
       console.log("Incomming action '%s'", action);
 
-      if(action == "REQUESTSTREAM")
+      if(action == "REQUESTSTREAM") {
         self.start_feed();
+      }
+
       if(action == "STOPSTREAM") {
-        self.readStream.end();
-        self.kill_feed()
+        try {
+          self.readStream.end();
+          self.kill_feed()
+        } catch (err) {
+          console.log('caught error killing raspivid, ignoring', err)
+        }
       }
     });
 
