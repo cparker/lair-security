@@ -146,6 +146,25 @@
         authInSndElm.play()
       }
 
+      function uploadSnapAndCompare() {
+        let picURL = mainCanvas.toDataURL()
+        return fetch('/uploadSnapAndCompare', {
+          method: 'POST',
+          body: picURL
+        })
+      }
+
+      function takeSnapAndCompare() {
+        analyzing()
+        uploadSnapAndCompare()
+          .then(result => {
+            console.log('uploaded snapshot', result)
+          })
+          .catch(err => {
+            console.log('error uploading snapshot', err)
+          })
+      }
+
       const analyzing = () => {
         textElements.forEach(e => e.style.display = 'none')
         analyzingElm.style.display = 'block';
@@ -182,7 +201,7 @@
         const countInterval = setInterval(() => {
           if (count < 0) {
             clearInterval(countInterval)
-            analyzing()
+            uploadSnapAndCompare()
           } else {
             countDown.innerHTML = `${count}`
             const countSound = soundMap[count]

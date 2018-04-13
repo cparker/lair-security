@@ -6,10 +6,14 @@ const app = express()
 const bodyParser = require('body-parser')
 const cookieParser = require('cookie-parser')
 const server = require('http').createServer(app)
-const io = require('socket.io')(server, {path: '/mystuff'})
+const io = require('socket.io')(server, {
+    path: '/mystuff'
+})
 // const io = require('socket.io')(server)
 const RaspiCam = require('raspicam')
-const { exec } = require('child_process')
+const {
+    exec
+} = require('child_process')
 const path = require('path')
 
 const AWS = require('aws-sdk')
@@ -31,6 +35,8 @@ const wakeMonitorCommand = process.env.WAKE_MON || 'vcgencmd display_power 1'
 
 // alarm resets after no motion for this many seconds
 const alarmResetTimeSec = process.env.ALARM_RESET_SEC || 30
+
+const authorizedFacesFilename = 'authorizedFaces.jpg'
 
 let lastMotionTimestamp = (new Date()).getTime()
 
@@ -93,6 +99,23 @@ app.post('/savepic', (req, res, next) => {
     fs.writeFileSync('canvas-snap.png', base64Data)
 })
 
+app.post('uploadSnapAndCompare', async(req, res, next) => {
+    console.log('uploadSnapAndCompare')
+    const postText = req.body.toString('utf-8')
+    const base64Text = postText.split('base64,')[1]
+    const base64Data = Buffer.from(base64Text, 'base64')
+    const imageFileName = 'sourceImage.png'
+    fs.writeFileSync(imageFileName, base64Data)
+
+    try {
+        const compareResult = await compareFacesPromise(imageFileName, authorizedFacesFilename)
+        res.status(201).send(compareResult)
+    } catch (err) {
+        console.log(err)
+        res.status(500).send(err)
+    }
+})
+
 const raspiVideoStreamOptions = {
     width: 1280,
     height: 768,
@@ -113,7 +136,7 @@ let getCookieID = (cookieHeader) => {
 const captureFilename = 'camera-snapshot.png'
 
 const imageCaptureCommand = process.env.IMAGE_CAPTURE_COMMAND ||
-  `/opt/vc/bin/raspistill --output ${captureFilename} --encoding png  --width 1024 --height 768 --rotation 90 --timeout 1000 --nopreview`
+    `/opt/vc/bin/raspistill --output ${captureFilename} --encoding png  --width 1024 --height 768 --rotation 90 --timeout 1000 --nopreview`
 
 const cameraOpts = {
     mode: 'photo',
@@ -313,12 +336,39 @@ function localFacePromise(savedImage) {
                         console.log('biggest face', JSON.stringify(faces[0], null, 2))
                         image.rectangle([face.x, face.y], [face.width, face.height], [0, 255, 0], 2)
                         image.save(boxImageName)
-                        resolve({face: face, boxImageName: boxImageName})
+                        resolve({
+                            face: face,
+                            boxImageName: boxImageName
+                        })
                     }
                 })
             }
         })
     })
+}
+
+function compareFacesPromise(sourceFilename, targetFilename) {
+    return new Promise((resolve, reject) => {
+        const sourceBuffer = fs.readFileSync(sourceFilename)
+        const targetBuffer = fs.readFileSync(targetFilename)
+        const params = {
+            SourceImage: {
+                Bytes: sourceBuffer
+            },
+            TargetImage: {
+                Bytes: targetBuffer
+            }
+        }
+        rekognition.compareFaces(params, (err, data) => {
+            if (err) {
+                console.log('error in compare faces', err, err.stack)
+                reject(err)
+            } else {
+                resolve(data)
+            }
+        })
+    })
+
 }
 
 function detectFaceAWSPromise(filename) {
@@ -363,24 +413,18 @@ function captureSimpleImage() {
 setInterval(() => {
     if (client) {
         console.log('emiting')
-        client.emit('test', {data: 'man this is great data'})
+        client.emit('test', {
+            data: 'man this is great data'
+        })
     }
 }, 1000)
 
 async function go() {
-    while (true) {
-        console.log('before face capture')
-        await asyncFaceCapture()
-        console.log('after face')
-        // let faceData = await detectFaceAWSPromise(captureFilename)
-        // if (client) {
-        //   client.emit('drawFace', faceData)
-        // }
-
-    }
+    const compareResults = await compareFacesPromise('testSource.png', 'testTarget.jpg')
+    console.log('compareResults', JSON.stringify(compareResults, null, 2))
 }
 
-// go()
+go()
 
 /*
 setInterval(() => {
