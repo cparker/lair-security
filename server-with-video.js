@@ -20,8 +20,6 @@ const port = process.env.PORT || 5000
 const rekognition = new AWS.Rekognition()
 const motionPin = process.env.MOTION_PIN || 21
 const cookieName = 'lairSecurityID'
-const defaultHeight = 800
-const defaultWidth = 900
 
 const WebStreamerServer = require('./raspi-stream/raspivid')
 
@@ -89,6 +87,7 @@ app.use(bodyParser.raw({
 }))
 
 app.post('/savepic', (req, res, next) => {
+  console.log('savepic')
   const postText = req.body.toString('utf-8')
   const base64Text = postText.split('base64,')[1]
   const base64Data = Buffer.from(base64Text, 'base64')
@@ -96,7 +95,7 @@ app.post('/savepic', (req, res, next) => {
 })
 
 const raspiVideoStreamOptions = {
-  width:1024,
+  width:1280,
   height:768,
   rotation:90,
   fps:12
