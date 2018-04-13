@@ -24,6 +24,7 @@ const motionPin = process.env.MOTION_PIN || 21
 const cookieName = 'lairSecurityID'
 
 const WebStreamerServer = require('./raspi-stream/raspivid')
+let alarmTimeout
 
 // command to put the display to sleep
 const sleepMonitorCommand = process.env.SLEEP_MON || 'vcgencmd display_power 0'
@@ -102,6 +103,7 @@ app.post('/uploadSnapAndCompare', async(req, res, next) => {
 
     try {
         const compareResult = await compareFacesPromise(authorizedFacesFilename, imageFileName)
+        clearTimeout(alarmTimeout)
         res.status(201).json(compareResult)
     } catch (err) {
         console.log(err)
@@ -171,6 +173,14 @@ server.listen(port, '0.0.0.0', () => {
     console.log(`listening on ${port}`)
 })
 
+
+/*
+  Called if there was motion NOT followed by successful auth
+*/
+function noAuthWithinPeriod() {
+    console.log('NO AUTH FOLLOWING MOTION, so trigger an alarm at this point')
+}
+
 // WAIT FOR MOTION
 if (process.env.NODE_ENV !== 'test') {
     console.log(`detecting change on pin ${motionPin}`)
@@ -179,18 +189,21 @@ if (process.env.NODE_ENV !== 'test') {
         // check to see how long since last motion
         if ((new Date()).getTime() - lastMotionTimestamp > alarmResetTimeSec * 1000) {
             console.log(`alarm reset period exceeded, triggering alarm`)
+
+            // there was no motion for a long enough period, followed by motion, so we need to authenticate
+
+            // turn on the monitor
             exec(wakeMonitorCommand)
+
+            // alert the browser
             if (client) {
                 client.emit('motionAlarm', {})
             }
+
+            // set a timeout to fire within a minute if no successful auth
+            alarmTimeout = setTimeout(noAuthWithinPeriod, 60 * 1000)
         }
         lastMotionTimestamp = (new Date()).getTime()
-        if (value && state === 'ARMED') {
-            state = 'AUTHENTICATING-LOCAL'
-            // authenticate()
-        } else {
-            console.log(`we have motion, but state is ${state}`)
-        }
     })
 }
 

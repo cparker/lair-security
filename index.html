@@ -230,7 +230,7 @@
         videoPlayer.playStream()
       })
 
-      startCountdown.addEventListener('click', () => {
+      function authCountdown() {
         authenticateIn()
         let count = 5
         const countInterval = setInterval(() => {
@@ -245,6 +245,10 @@
             count--
           }
         }, 1000)
+      }
+
+      startCountdown.addEventListener('click', () => {
+        authCountdown()
       })
 
       authFailedBtn.addEventListener('click', () => {
@@ -273,6 +277,11 @@
         }
       })
 
+      function handleMotionAlarm() {
+        videoPlayer.playStream()
+        authCountdown()
+      }
+
       drawFaceGeoBtn.addEventListener('click', () => {
         drawFaceGeo()
         addFaceStats()
@@ -295,6 +304,7 @@
 
       mySocket.on('motionAlarm', m => {
         console.log('motion alarm')
+        handleMotionAlarm()
       })
 
     }
