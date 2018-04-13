@@ -95,6 +95,13 @@ app.post('/savepic', (req, res, next) => {
   fs.writeFileSync('canvas-snap.png', base64Data)
 })
 
+const raspiVideoStreamOptions = {
+  width:1024,
+  height:768,
+  rotation:90,
+  fps:12
+}
+
 
 let getCookieID = (cookieHeader) => {
     return (() => {
@@ -135,7 +142,7 @@ if (process.env.NODE_ENV !== 'test') {
 
 io.of('/fred').on('connection', localClient => {
     // FIXME: note that we're storing the last connected client globally
-    console.log('client connected', localClient)
+    console.log('client connected' )
     client = localClient
     console.log('HEADERS', client.handshake.headers)
     const cookieID = getCookieID(client.handshake.headers.cookie)
@@ -162,7 +169,7 @@ io.on('disconnect', client => {
     console.log('disconnect client.conn.id', client.conn.id)
 })
 
-const silence = new WebStreamerServer(server)
+const silence = new WebStreamerServer(server, raspiVideoStreamOptions)
 
 server.listen(port, '0.0.0.0', () => {
     console.log(`listening on ${port}`)
