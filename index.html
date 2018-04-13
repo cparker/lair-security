@@ -158,7 +158,11 @@
         analyzing()
         uploadSnapAndCompare()
           .then(result => {
-            console.log('uploaded snapshot', result)
+            console.log('uploaded snap returned')
+            return result.json()
+          })
+          .then(data => {
+            console.log('uploadSnapCompareResponseData', data)
           })
           .catch(err => {
             console.log('error uploading snapshot', err)
