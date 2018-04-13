@@ -186,11 +186,11 @@
               }
               if (data.UnmatchedFaces && data.UnmatchedFaces.length > 0) {
                 data.UnmatchedFaces.forEach(uf => {
-                  drawFaceLandmarks(f.Landmarks)
+                  drawFaceLandmarks(uf.Landmarks)
                 })
               }
             } catch (err) {
-              console.log('caught error drawing face landmarks')
+              console.log('caught error drawing face landmarks', err)
             }
 
           })
