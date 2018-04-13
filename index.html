@@ -146,17 +146,20 @@
         authInSndElm.play()
       }
 
-      function uploadSnapAndCompare() {
-        let picURL = mainCanvas.toDataURL()
+      function uploadSnapAndCompare(url) {
         return fetch('/uploadSnapAndCompare', {
           method: 'POST',
-          body: picURL
+          body: url
         })
       }
 
       function takeSnapAndCompare() {
+        let picURL = mainCanvas.toDataURL()
+        stillImageElm.src = picURL
+
+        displayStillImage()
         analyzing()
-        uploadSnapAndCompare()
+        uploadSnapAndCompare(url)
           .then(result => {
             console.log('uploaded snap returned')
             return result.json()
@@ -219,6 +222,16 @@
       authFailedBtn.addEventListener('click', () => {
         authFailed()
       })
+
+      function displayMain() {
+          mainCanvas.style.display='block'
+          stillImageElm.style.display='none'
+      }
+
+      function displayStillImage() {
+          mainCanvas.style.display='none'
+          stillImageElm.style.display='block'
+      }
 
       vidImageToggle.addEventListener('click', () => {
         if (showVid) {
