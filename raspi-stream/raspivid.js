@@ -8,13 +8,13 @@ const Server    = require('./_server');
 
 
 class RpiServer extends Server {
-  streamer
 
   constructor(server, opts) {
     console.log('const opts', opts)
     super(server, merge({
       fps : 12,
     }, opts));
+    this.streamer = undefined
   }
 
   get_feed() {
@@ -29,6 +29,7 @@ class RpiServer extends Server {
   }
 
   kill_feed() {
+    console.log('killing')
     this.streamer.kill('SIGKILL')
 
   }

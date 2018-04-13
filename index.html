@@ -61,6 +61,8 @@
   <input class="buttons" id="authFailedBtn" type="button" value="auth failed"></input>
   <input class="buttons" id="vidImageToggle" type="button" value="vid image toggle"></input>
   <input class="buttons" id="drawFaceGeoBtn" type="button" value="draw face geo"></input>
+  <input class="buttons" id="showVidBtn" type="button" value="show video"></input>
+  <input class="buttons" id="showStillBtn" type="button" value="show still"></input>
 
 
   <script>
@@ -77,6 +79,7 @@
     let authInSndElm, fiveSndElm, fourSndElm, threeSndElm, twoSndElm, oneSndElm, zeroSndElm, analyzingSndElm, authFailedSndElm, authOKSndElm
     let ageValueElm, sexValueElm, beardValueElm, smileValueElm
     let faceStatsBox, faceStatsLabelBox, textOnVideo
+    let showStillBtn, showVidBtn
 
     const imageWidth = 1280
     const imageHeight = 768
@@ -115,6 +118,9 @@
       sexValueElm = document.querySelector('#sexValueElm')
       beardValueElm = document.querySelector('#beardValueElm')
       smileValueElm = document.querySelector('#smileValueElm')
+
+      showStillBtn = doucument.querySelector('#showStillBtn')
+      showVidBtn = doucument.querySelector('#showVidBtn')
 
       textOnVideo = document.querySelector('#textOnVideo')
 
@@ -306,6 +312,15 @@
       mySocket.on('motionAlarm', m => {
         console.log('motion alarm')
         handleMotionAlarm()
+      })
+
+      showVidBtn.addEventListener('click', () => {
+        console.log('showing vid')
+        handleMotionAlarm()
+      })
+
+      showStillBtn.addEventListener('click', () => {
+        console.log('showing still')
       })
 
     }
