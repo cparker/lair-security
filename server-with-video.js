@@ -104,18 +104,27 @@ app.post('/uploadSnapAndCompare', async(req, res, next) => {
     fs.writeFileSync(imageFileName, base64Data)
 
     try {
-        const compareResult = await compareFacesPromise(authorizedFacesFilename, imageFileName)
+        // doing both compare faces AND analyze faces in parallel
+        const comparePromise = compareFacesPromise(authorizedFacesFilename, imageFileName)
+        const detectPromise = detectFaceAWSPromise(imageFileName)
+        const [compareResult, detectResult] = await Promise.all([comparePromise, detectPromise])
+
+        const finalResponse = {
+            compareResult: compareResult,
+            detectResult: detectResult
+        }
+
         if (compareResult.FaceMatches && compareResult.FaceMatches.length > 0 && compareResult.FaceMatches[0].Similarity >= matchThreshold) {
             // attach a simple boolean to response
-            compareResult.authenticated = true
+            finalResponse.authenticated = true
             console.log('auth succeeded clearing alarm timeout')
             if (alarmTimeout) {
                 clearTimeout(alarmTimeout)
             }
         } else {
-            compareResult.authenticated = false
+            finalResponse.authenticated = false
         }
-        res.status(201).json(compareResult)
+        res.status(201).json(finalResponse)
     } catch (err) {
         console.log(err)
         res.status(500).send(err)

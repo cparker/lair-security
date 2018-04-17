@@ -99,6 +99,14 @@ async function stopStreamingVideo() {
     page.videoElm.style.display = 'none'
 }
 
+async function playAuthInSound() {
+    return new Promise(resolve => {
+        page.authInSndElm.currentTime = 0
+        page.authInSndElm.play()
+        page.authInSndElm.addEventListener('ended', () => resolve('playAuthInSound done'))
+    })
+}
+
 async function displayCountdown() {
     const soundMap = {
         5: page.fiveSndElm,
@@ -109,13 +117,12 @@ async function displayCountdown() {
         0: page.zeroSndElm
     }
 
-    return new Promise((resolve) => {
+    return new Promise(async(resolve) => {
         let count = countdownSteps
         let countInterval
         hideAllTextElements()
         page.authenticateInElm.style.display = 'block'
-        page.authInSndElm.currentTime = 0
-        page.authInSndElm.play()
+        await playAuthInSound()
 
         const countF = () => {
             // show stuff
@@ -189,8 +196,8 @@ function clearFaceCanvas() {
 }
 
 async function drawFaceLandmarks(landmarks) {
-    const faceGeoContext = page.faceGeoCanvas.getContext('2d')
-    landmarks.forEach(point => {
+    const faceGeoContext = page.faceGeoCanvas.getContext('2d');
+    (landmarks || []).forEach(point => {
         let xCoord = Math.floor(point.X * page.stillImage.width)
         let yCoord = Math.floor(point.Y * page.stillImage.height)
         faceGeoContext.beginPath()
@@ -201,20 +208,48 @@ async function drawFaceLandmarks(landmarks) {
     })
 }
 
+function addFaceStats(detectResult) {
+    page.textOnVideo.style.visibility = 'visible'
+
+    page.ageValueElm.innerHTML = `${detectResult.FaceDetails[0].AgeRange.Low} - ${detectResult.FaceDetails[0].AgeRange.High}`
+    page.sexValueElm.innerHTML = `${detectResult.FaceDetails[0].Gender.Confidence.toFixed(1)}% ${detectResult.FaceDetails[0].Gender.Value}`
+    page.beardValueElm.innerHTML = `${detectResult.FaceDetails[0].Beard.Confidence.toFixed(1)}% ${detectResult.FaceDetails[0].Beard.Value}`
+    page.smileValueElm.innerHTML = `${detectResult.FaceDetails[0].Smile.Confidence.toFixed(1)}%  ${detectResult.FaceDetails[0].Smile.Value}`
+
+    detectResult.FaceDetails[0].Emotions.forEach(e => {
+        const newLabel = document.createElement('div')
+        newLabel.classList.add('label')
+        const cleanLabel = e.Type.toLowerCase().substr(0, 1).toUpperCase() + e.Type.toLowerCase().substr(1)
+        newLabel.innerHTML = `${cleanLabel}:`
+        page.faceStatsLabelBox.appendChild(newLabel)
+
+        const newStat = document.createElement('div')
+        newStat.classList.add('value')
+        newStat.innerHTML = `${e.Confidence.toFixed(1)}%`
+        page.faceStatsBox.appendChild(newStat)
+    })
+
+}
+
 async function displaySnapshotResult(snapshotResult) {
     clearFaceCanvas()
 
     // in face comparison, you have matched faces and unmatched faces
-    if (snapshotResult.FaceMatches && snapshotResult.FaceMatches.length > 0) {
-        snapshotResult.FaceMatches.forEach(matchedFace => {
+    if (snapshotResult.compareResult.FaceMatches && snapshotResult.compareResult.FaceMatches.length > 0) {
+        snapshotResult.compareResult.FaceMatches.forEach(matchedFace => {
             drawFaceLandmarks(matchedFace.Face.Landmarks)
         })
     }
 
-    if (snapshotResult.UnmatchedFaces && snapshotResult.UnmatchedFaces.lenth > 0) {
-        snapshotResult.UnmatchedFaces.forEach(unmatchedFace => {
+    if (snapshotResult.compareResult.UnmatchedFaces && snapshotResult.compareResult.UnmatchedFaces.lenth > 0) {
+        snapshotResult.compareResult.UnmatchedFaces.forEach(unmatchedFace => {
             drawFaceLandmarks(unmatchedFace.Landmarks)
         })
+    }
+
+    addFaceStats(snapshotResult.detectResult)
+    if (snapshotResult.detectResult.FaceDetails && snapshotResult.detectResult.FaceDetails.length > 0) {
+        drawFaceLandmarks(snapshotResult.detectResult.FaceDetails[0].Landmarks)
     }
 }
 
