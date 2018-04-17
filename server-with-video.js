@@ -106,10 +106,14 @@ app.post('/uploadSnapAndCompare', async(req, res, next) => {
     try {
         const compareResult = await compareFacesPromise(authorizedFacesFilename, imageFileName)
         if (compareResult.FaceMatches && compareResult.FaceMatches.length > 0 && compareResult.FaceMatches[0].Similarity >= matchThreshold) {
+            // attach a simple boolean to response
+            compareResult.authenticated = true
             console.log('auth succeeded clearing alarm timeout')
             if (alarmTimeout) {
                 clearTimeout(alarmTimeout)
             }
+        } else {
+            compareResult.authenticated = false
         }
         res.status(201).json(compareResult)
     } catch (err) {
@@ -180,7 +184,6 @@ server.listen(port, '0.0.0.0', () => {
     console.log(`listening on ${port}`)
 })
 
-
 /*
   Called if there was motion NOT followed by successful auth
 */
@@ -204,7 +207,7 @@ if (process.env.NODE_ENV !== 'test') {
 
             // alert the browser
             if (client) {
-              client.emit('motionAlarm', {})
+                client.emit('motionAlarm', {})
             }
 
             // set a timeout to fire within a minute if no successful auth
@@ -213,10 +216,6 @@ if (process.env.NODE_ENV !== 'test') {
         lastMotionTimestamp = (new Date()).getTime()
     })
 }
-
-
-
-
 
 function compareFacesPromise(sourceFilename, targetFilename) {
     return new Promise((resolve, reject) => {
@@ -230,7 +229,7 @@ function compareFacesPromise(sourceFilename, targetFilename) {
                 Bytes: targetBuffer
             }
         }
-console.log('params',params)
+        console.log('params', params)
         rekognition.compareFaces(params, (err, data) => {
             if (err) {
                 console.log('error in compare faces', err, err.stack)

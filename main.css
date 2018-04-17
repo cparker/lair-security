@@ -41,7 +41,20 @@ body {
 #mainCanvas {
   width: var(--video-width);
   height: var(--video-height);
+  position:absolute;
+  top:0;
+  left:0;
   /* border: 1px solid red; */
+}
+
+.videoWrapper {
+  position: absolute;
+}
+
+#mainVideo {
+  width: var(--video-width);
+  height: var(--video-height);
+  border: 4px solid orange;
 }
 
 #faceGeometry {
@@ -86,6 +99,7 @@ body {
 }
 
 .buttons {
+  margin-top:20px;
   z-index: 5;
 }
 
