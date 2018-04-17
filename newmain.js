@@ -2,7 +2,7 @@ let page, mySocket
 
 const test = true
 
-const authenticationAttemptMax = 1
+const authenticationAttemptMax = 2
 const countdownSteps = 5
 const imageWidth = 1280
 const imageHeight = 768
@@ -83,10 +83,11 @@ async function authenticate() {
 
 async function startStreamingVideo() {
     console.log('starting video stream')
+    clearFaceCanvas()
     page.videoElm.style.display = 'block'
     if (test) {
         console.log('testvideo')
-        page.videoSourceElm.src = '/testvid.mov'
+        page.videoSourceElm.src = '/test-fail-vid-2.mov'
         page.videoElm.currentTime = 0
         page.videoElm.load()
         page.videoElm.play()
@@ -192,7 +193,10 @@ async function analyzeSnapshot(snapshotURL) {
 
 function clearFaceCanvas() {
     const faceGeoContext = page.faceGeoCanvas.getContext('2d')
+    const mainCanvasContext = page.mainCanvas.getContext('2d')
     faceGeoContext.clearRect(0, 0, page.faceGeoCanvas.width, page.faceGeoCanvas.height)
+    mainCanvasContext.clearRect(0, 0, page.mainCanvas.width, page.mainCanvas.height)
+    page.textOnVideo.style.visibility = 'hidden'
 }
 
 async function drawFaceLandmarks(landmarks) {
@@ -216,15 +220,21 @@ function addFaceStats(detectResult) {
     page.beardValueElm.innerHTML = `${detectResult.FaceDetails[0].Beard.Confidence.toFixed(1)}% ${detectResult.FaceDetails[0].Beard.Value}`
     page.smileValueElm.innerHTML = `${detectResult.FaceDetails[0].Smile.Confidence.toFixed(1)}%  ${detectResult.FaceDetails[0].Smile.Value}`
 
+    document.querySelectorAll('.dynamic').forEach(elm => {
+        elm.remove()
+    })
+
     detectResult.FaceDetails[0].Emotions.forEach(e => {
         const newLabel = document.createElement('div')
         newLabel.classList.add('label')
+        newLabel.classList.add('dynamic')
         const cleanLabel = e.Type.toLowerCase().substr(0, 1).toUpperCase() + e.Type.toLowerCase().substr(1)
         newLabel.innerHTML = `${cleanLabel}:`
         page.faceStatsLabelBox.appendChild(newLabel)
 
         const newStat = document.createElement('div')
         newStat.classList.add('value')
+        newStat.classList.add('dynamic')
         newStat.innerHTML = `${e.Confidence.toFixed(1)}%`
         page.faceStatsBox.appendChild(newStat)
     })
