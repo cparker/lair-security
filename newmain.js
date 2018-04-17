@@ -251,7 +251,7 @@ async function displaySnapshotResult(snapshotResult) {
         })
     }
 
-    if (snapshotResult.compareResult.UnmatchedFaces && snapshotResult.compareResult.UnmatchedFaces.lenth > 0) {
+    if (snapshotResult.compareResult.UnmatchedFaces && snapshotResult.compareResult.UnmatchedFaces.length > 0) {
         snapshotResult.compareResult.UnmatchedFaces.forEach(unmatchedFace => {
             drawFaceLandmarks(unmatchedFace.Landmarks)
         })
