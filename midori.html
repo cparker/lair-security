@@ -19,6 +19,11 @@
       window.onload = function() { 
           console.log('loaded')
       }
+
+      fetch('/mockFaceData.js')
+        .then(function(response) {
+          console.log('response is', response)
+        })
   </script>
 
 </body>
